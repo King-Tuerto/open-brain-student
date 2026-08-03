@@ -52,10 +52,25 @@ Este es el nivel donde el cerebro vale la pena tenerlo. Si vas directamente al N
 
 Esto es lo que estás agregando hoy:
 — Captura de voz: habla un pensamiento en voz alta, se guarda como texto
-— YouTube: pega una URL de video, la transcripción se extrae y guarda
-— PDF: sube un documento, el texto se extrae y guarda
-— URL: pega cualquier página web, el contenido se captura
+— PDF: suelta un documento y el texto se extrae solo
+— YouTube: pega la liga de un video, toma su transcripción, guárdala
+— URL: captura un artículo que quieras conservar
 — Búsqueda: encuentra cualquier cosa que hayas guardado alguna vez
+— Y un inicio de sesión, para que todo esto sea tuyo de verdad y no de todo internet
+
+Dos de estas son honestamente semi-manuales por hoy, y vale la pena saber por qué
+antes de que te topes con ello.
+
+YouTube esconde los subtítulos de todo lo que no sea una persona con un
+navegador. Tu página web no puede ir a buscarlos. Tampoco puede una página web
+traer un artículo de otro sitio — los navegadores lo prohíben, por buenas razones
+de seguridad. Las dos paredes necesitan un pequeño programa corriendo en un
+servidor, y todavía no tienes uno.
+
+Construyes el primero en el Nivel 3. Así que hoy YouTube y URL llevan un copiar y
+pegar, y al final del Nivel 3 vas a reemplazar los dos por la versión automática.
+Eso no es una falla del plan — es el plan. No puedes automatizar algo antes de
+tener dónde correr la automatización.
 
 Esta es también la sesión donde tu aplicación se convierte en una Progressive Web App — lo que significa que puedes instalarla en tu teléfono como una aplicación real y acceder a ella sin abrir un navegador. Tu cerebro ahora está siempre contigo.
 
