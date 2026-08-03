@@ -68,7 +68,27 @@ Posibilidades futuras más allá de este nivel: un informe diario que conecta tu
    1 — Yes
    2 — I have fewer"
 
-If fewer than 50 → send them back to Level 2 and 3 to feed the brain first. The enrichment agent and digest are only valuable with real content.
+If they have fewer, DO NOT send them away. That is how people quit. Instead,
+offer to fill the brain right now — it takes about twenty minutes and it is the
+most enjoyable part of the whole series:
+
+  1. Ask for five to eight YouTube links of videos they actually watched and
+     learned something from. Capture each one. This is the fastest way to add
+     real substance — each video becomes several paragraphs, worth far more than
+     a dozen one-line notes.
+  2. Ask for three to five articles they bookmarked and meant to read.
+  3. Then interview them for ten to fifteen minutes and save the answers as
+     thoughts, in their own words. Ask what they are working on and what is hard
+     about it; something they learned recently that changed their mind; a problem
+     they have been chewing on; something they explain to people over and over;
+     what they want to be better at in a year; an opinion they hold that people
+     around them disagree with.
+
+Half-formed thoughts are the valuable ones — those are exactly what they will
+have forgotten in six months.
+
+Then continue. A thin brain makes this level less impressive, but it is never a
+reason to stop. Say so plainly.
 
 ═══ CONCEPT EXPLANATION — deliver before any steps ═══
 
@@ -94,7 +114,30 @@ Un cron job es una tarea que corre automáticamente en un horario — cada domin
 
 ═══ STEP 1 — GET AN AI API KEY ═══
 
-Explain: "Your agents need to call an AI to do enrichment and summaries. You need an API key — a password that lets your code call the AI. We will use Anthropic's API (the same AI as Claude) but through a key you control directly. This is different from using claude.ai in a browser — this gives your code the ability to call Claude programmatically."
+Explain: "Your agents need to call an AI. That means an API key — a password that
+lets your CODE talk to an AI, rather than you talking to one by typing.
+
+Stop here, because this is where almost everyone gets confused and thinks
+something is broken:
+
+YOUR CLAUDE SUBSCRIPTION DOES NOT COVER THIS.
+
+Your Claude Pro or Max subscription pays for YOU using Claude — in the app, in
+the browser, in Claude Code. It does not pay for YOUR PROGRAMS calling an AI on
+their own. Those are two different products with two separate bills. When you
+land on a page asking for a payment method, nothing has gone wrong and nobody is
+upselling you. It is a different service.
+
+What it will actually cost you: every thought you save gets one small, cheap
+request to tag and summarise it. Saving fifty things a month costs well under a
+dollar. Ten dollars of credit will most likely last you months. You are not
+starting a subscription — you put a few dollars in and it draws down as you use
+it. Your provider's dashboard shows exactly what you have spent, any time.
+
+Do you want me to explain any of that further before you put a card in?"
+
+Wait for their answer. Do not rush them past this — a surprise bill is the
+fastest way for someone to abandon a project and distrust the whole idea.
 
 Instructions:
 1. Go to console.anthropic.com
@@ -123,7 +166,12 @@ The function should:
 - Accept POST requests with: { prompt, systemPrompt?, model?, maxTokens? }
 - Read ANTHROPIC_API_KEY from Deno.env
 - Read LLM_PROVIDER from Deno.env (default: 'anthropic')
-- Read LLM_MODEL from Deno.env (default: 'claude-haiku-4-5-20251001' — fast and cheap for agent tasks)
+- Read LLM_MODEL from Deno.env. Do NOT hardcode a model name in this document —
+  model names change every few months and anything printed here goes stale.
+  Instead, tell the student which model you recommend right now for this job
+  (small, fast and cheap, because it runs on every single save) and have them
+  put that name in their secrets. If you are unsure what is current, say so and
+  suggest they ask you in a fresh conversation.
 - Call the Anthropic API with the provided prompt
 - Return { text: string } in the response
 - Include a comment at the top: "To switch providers, change LLM_PROVIDER in Supabase secrets. Add the new provider's API key. No other code changes needed."
@@ -132,7 +180,13 @@ The function should:
 Have the student:
 1. Create supabase/functions/call-llm/index.ts
 2. Paste the generated code
-3. Add to Supabase secrets: LLM_PROVIDER = anthropic and LLM_MODEL = claude-haiku-4-5-20251001
+3. Add to Supabase secrets: LLM_PROVIDER and LLM_MODEL, using the provider and
+   the current small/cheap model you recommended above.
+
+   Point out what just happened: those two values are the entire reason this is
+   called LLM-agnostic. Changing which AI powers their brain — to a different
+   Anthropic model, or to OpenAI, Google, or something that does not exist yet —
+   is editing those two lines. No code changes anywhere.
 4. Deploy: npx supabase functions deploy call-llm --project-ref THEIR_PROJECT_REF
 
 Ask: "Did the deployment succeed?
@@ -316,7 +370,7 @@ ENGLISH: "Your brain is now autonomous. Here is what is running without you:
 — Every Sunday at 8am your brain writes you a report on what you have been learning
 — Every agent call goes through your LLM gateway — swap providers by changing one environment variable
 
-Here is what you have built across all 5 levels:
+Here is what you have built so far:
 — A cloud database you own (Supabase)
 — A Progressive Web App deployed to the internet (Vercel)
 — A Telegram bot for capture on the go
@@ -335,7 +389,12 @@ Where to go from here — none of this is in the curriculum, you figure it out:
 — Train a fine-tuned model on your brain content
 — Build an agent that reads your email, extracts what is worth keeping, and captures it automatically
 
-You are no longer afraid of building. You built something real. That is the point."
+One more level. Level 6 is the one that changes how the brain FEELS to use: search
+stops matching words and starts matching meaning, and your thoughts begin linking
+themselves together. Ask for "how do I get new clients" and it finds the note you
+wrote about customer acquisition, in completely different words.
+
+When you are ready, open the Level 6 prompt."
 
 SPANISH: "Tu cerebro ahora es autónomo. Aquí está lo que corre sin ti:
 
@@ -343,7 +402,7 @@ SPANISH: "Tu cerebro ahora es autónomo. Aquí está lo que corre sin ti:
 — Cada domingo a las 8am tu cerebro te escribe un reporte sobre lo que has estado aprendiendo
 — Cada llamada de agente pasa por tu puerta de enlace LLM — cambia de proveedor cambiando una variable de entorno
 
-Aquí está lo que has construido en los 5 niveles:
+Esto es lo que has construido hasta ahora:
 — Una base de datos en la nube que tú posees (Supabase)
 — Una Progressive Web App desplegada en internet (Vercel)
 — Un bot de Telegram para captura en movimiento
@@ -362,5 +421,11 @@ A dónde ir desde aquí — nada de esto está en el currículo, tú lo descifra
 — Entrena un modelo fine-tuned con el contenido de tu cerebro
 — Construye un agente que lea tu correo electrónico, extraiga lo que vale la pena conservar y lo capture automáticamente
 
-Ya no tienes miedo de construir. Construiste algo real. Ese es el punto."
+Falta un nivel. El Nivel 6 es el que cambia cómo se SIENTE usar el cerebro: la
+búsqueda deja de coincidir palabras y empieza a coincidir significados, y tus
+pensamientos empiezan a enlazarse solos. Pide "cómo consigo clientes nuevos" y
+encuentra la nota que escribiste sobre captación, con palabras completamente
+distintas.
+
+Cuando estés listo, abre el prompt del Nivel 6."
 ```

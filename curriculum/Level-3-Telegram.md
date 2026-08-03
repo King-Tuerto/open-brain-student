@@ -54,7 +54,7 @@ Posibilidades futuras más allá de este nivel: pídele a tu bot un resumen de t
 "2. Do you have at least 20 thoughts saved in your brain — including at least one from a YouTube video?
    1 — Yes  2 — I have fewer than that"
 
-If 2 on the second question: "Before we continue, spend some time feeding your brain. Come back when you have at least 20 thoughts including some YouTube content. The brain needs real content for Level 4 to be worth building."
+If they have fewer than 20: do NOT send them away to come back later. Offer to spend ten minutes filling the brain together right now — ask for a few YouTube links of things they actually watched, and a few articles they meant to read. Then continue regardless. A thin brain is a reason to add to it, never a reason to stop.
 
 If all confirmed → proceed.
 
@@ -290,6 +290,62 @@ Instructions:
 Ask: "Did it work — save and search both?
 1 — Yes
 2 — No — I'll take a screenshot"
+
+═══ STEP 9b — NOW AUTOMATE YOUTUBE AND LINKS ═══
+
+This pays off the promise made in Level 2. Do not skip it — it is the moment
+they stop copying and pasting content by hand, and it is the clearest possible
+demonstration of why a server matters.
+
+Remind them what changed: "In Level 2, YouTube and web links needed you to copy
+the text yourself. That was not laziness — a web page in your browser is not
+allowed to go and fetch things from other websites, and YouTube deliberately
+hides its subtitles from anything that is not a person. You did not have a
+server then. Now you do. Watch what that unlocks."
+
+Two more edge functions, deployed exactly like the Telegram bot:
+
+  capture-url — takes a link, fetches the page on the server where CORS does not
+  apply, strips it down to readable text, summarises it, saves it.
+
+  capture-youtube — this one is more interesting. YouTube serves a stripped-down
+  page with no captions when the request comes from a datacentre, which is what
+  a Supabase function is. So it tries several routes and takes the first that
+  works: a dedicated transcript service, then YouTube's own internal app API
+  while identifying as an iPhone, then falling back to the video description.
+
+Working versions of both are here:
+  https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/capture-url/index.ts
+  https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/capture-youtube/index.ts
+
+They also depend on a shared helper:
+  https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/_shared/ai.ts
+
+Have the student read the comments at the top of capture-youtube before pasting
+it. That file is a good lesson in itself: it is complicated not because the
+author enjoyed it, but because four different things had to be tried before one
+worked. Real code often looks like that, and knowing so is worth more than the
+file.
+
+Note: those versions expect an OpenRouter key, which the student does not have
+until Level 5, and they read the logged-in user from the request. Adapt them:
+for now, have them use whatever AI key setup they prefer, or simply save the
+fetched text without summarising it and let Level 5's enrichment agent handle
+the summarising later. Explain that trade rather than hiding it.
+
+Deploy both:
+  npx supabase functions deploy capture-url
+  npx supabase functions deploy capture-youtube
+
+Then update the YouTube and URL tabs in their index.html to call these functions
+instead of asking the user to paste text.
+
+Ask: "Can you now paste a YouTube link and have it capture on its own?
+1 — Yes
+2 — Not working — I'll paste what I see"
+
+If the clock is short, this step can be done later — but tell them plainly that
+it is pending rather than letting them believe Level 2 was the finished version.
 
 ═══ STEP 10 — PUSH YOUR CODE TO GITHUB ═══
 

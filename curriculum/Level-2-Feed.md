@@ -20,10 +20,24 @@ This is the level where the brain becomes worth having. If you go straight to Le
 
 Here is what you are adding today:
 — Voice capture: speak a thought out loud, it saves as text
-— YouTube: paste a video URL, the transcript is extracted and saved
-— PDF: upload a document, the text is extracted and saved
-— URL: paste any webpage, the content is captured
+— PDF: drop in a document, the text is pulled out automatically
+— YouTube: paste a video link, grab its transcript, save it
+— URL: capture an article you want to keep
 — Search: find anything you have ever saved
+— And a login, so all of this is actually yours and not the whole internet's
+
+Two of these are honest about being half-manual today, and it is worth knowing
+why before you hit it.
+
+YouTube hides subtitles from anything that is not a person with a browser. Your
+web page cannot go and fetch them. Neither can a web page fetch an article from
+another website — browsers forbid it, for good security reasons. Both of those
+walls need a small program running on a server, and you do not have one yet.
+
+You build your first one in Level 3. So today YouTube and URL involve a copy and
+paste, and at the end of Level 3 you will replace both with the automatic
+version. That is not a shortcoming of the plan — it is the plan. You cannot
+automate something before you have anywhere to run the automation.
 
 This is also the session where your app becomes a Progressive Web App — which means you can install it on your phone like a real app and access it without opening a browser. Your brain is now always with you.
 
@@ -73,6 +87,131 @@ Ask these one at a time. If any answer is 2, help them fix it before continuing.
    1 — Yes  2 — No"
 
 If all 3 confirmed → proceed. If any fail → fix them before continuing. Do not proceed without a working Level 1 foundation.
+
+═══ STEP 0 — CLOSE THE HOLE BEFORE YOU FILL THE BRAIN ═══
+
+DO THIS FIRST, BEFORE ANY OTHER STEP IN THIS LEVEL. The whole point is to fix it
+BEFORE real content goes in, not after.
+
+Deliver this, and make it feel real rather than abstract:
+
+ENGLISH: "Before we make your brain good at swallowing content, we have to fix
+something. Right now your brain is readable by anybody.
+
+Don't take my word for it. Do this:
+
+1. Open a private or incognito window in your browser
+2. Paste in your Vercel URL
+3. You are not logged in. You have never been logged in. Look at your thoughts.
+
+That is what anyone on the internet sees if they find your address. They can
+also add thoughts, change them, and delete all of them.
+
+This is not a mistake in the instructions — it is how Level 1 was set up on
+purpose, so you could see something working within an hour instead of three.
+Your brain was empty, so there was nothing to lose. Level 2 is about to change
+that: you are about to start feeding it things you actually read and watch and
+think.
+
+So we fix it now.
+
+Here is the thing worth carrying with you: this exact situation — a permissive
+rule added to get something working, meant to be temporary — is how a very large
+share of real-world data leaks begin. Not clever attacks. Somebody's TODO that
+nobody came back to. You are about to come back to it, which most people never
+do."
+
+SPANISH: "Antes de hacer que tu cerebro sea bueno para tragar contenido, hay que
+arreglar algo. Ahora mismo tu cerebro lo puede leer cualquiera.
+
+No me creas. Haz esto:
+
+1. Abre una ventana privada o de incógnito en tu navegador
+2. Pega tu URL de Vercel
+3. No has iniciado sesión. Nunca la has iniciado. Mira tus pensamientos.
+
+Eso es lo que ve cualquier persona en internet que encuentre tu dirección.
+También puede agregar pensamientos, cambiarlos y borrarlos todos.
+
+Esto no es un error de las instrucciones — así se configuró el Nivel 1 a
+propósito, para que vieras algo funcionando en una hora en lugar de en tres. Tu
+cerebro estaba vacío, no había nada que perder. El Nivel 2 está a punto de
+cambiar eso: vas a empezar a alimentarlo con cosas que de verdad lees, ves y
+piensas.
+
+Así que lo arreglamos ahora.
+
+Esto es lo que vale la pena que te lleves: esta situación exacta — una regla
+permisiva puesta para que algo funcionara, pensada como temporal — es como
+empiezan buena parte de las filtraciones de datos del mundo real. No ataques
+ingeniosos. El pendiente de alguien que nunca regresó a arreglarlo. Tú estás a
+punto de regresar, que es lo que casi nadie hace."
+
+Ask: "Did you try the private window, and could you see your thoughts without logging in?
+1 — Yes, I saw them
+2 — No / something different happened — I'll take a screenshot"
+
+Do not continue until they have actually looked. Being told is forgettable.
+Seeing it is not.
+
+--- NOW FIX IT ---
+
+Explain: "Two changes. First the database learns to only hand out rows to the
+person who owns them. Then your app gets a login screen."
+
+Have them run this in the Supabase SQL Editor:
+
+-- Every thought now belongs to someone
+alter table thoughts
+  add column if not exists user_id uuid references auth.users(id) on delete cascade;
+
+-- Remove the rule that allowed everyone in
+drop policy if exists "temporary_open_access" on thoughts;
+drop policy if exists "allow_all" on thoughts;
+
+-- Replace it: only logged-in people, and only their own rows.
+-- auth.uid() is the id of whoever is asking. If it does not match the row's
+-- user_id, the database behaves as though the row does not exist.
+create policy "own_thoughts" on thoughts
+  for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+Then have them turn off email confirmation so signing up does not require
+waiting for an email mid-build:
+  Supabase -> Authentication -> Sign In / Providers -> Email -> uncheck
+  "Confirm email" -> Save
+
+Warn them explicitly: "The moment you run that SQL, your app stops working —
+it will show no thoughts and saving will fail. That is correct. It is the
+database refusing to talk to someone who is not logged in. We are about to give
+you a way to log in."
+
+Any thoughts they saved in Level 1 have no user_id and will be invisible from
+now on. That is fine — they were test thoughts. Tell them so they are not
+alarmed. (If they want them back, after signing up they can run:
+  update thoughts set user_id = (select id from auth.users limit 1)
+  where user_id is null;  )
+
+The upgraded index.html you generate in the next step MUST include:
+- A login screen shown when nobody is signed in: email + password, and a toggle
+  between "sign in" and "create account"
+- supabase.auth.signUp and supabase.auth.signInWithPassword
+- supabase.auth.onAuthStateChange to swap between the login screen and the app
+- user_id: user.id included on every insert
+- A sign out button
+
+Ask: "Did the SQL run without errors?
+1 — Yes
+2 — Error — I'll paste what I see"
+
+--- PROVE IT IS FIXED ---
+
+After the app is redeployed later in this level, send them back to the private
+window and have them reload. They should now see a login screen and nothing
+else. Have them confirm that. Closing the loop is the part that makes the lesson
+stick.
 
 ═══ WHAT YOU ARE BUILDING ═══
 
@@ -161,18 +300,40 @@ Now generate a manifest.json file:
 {
   "name": "My Open Brain",
   "short_name": "Open Brain",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f0f0f",
   "theme_color": "#6366f1",
   "icons": [
     {
-      "src": "https://fav.farm/🧠",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
+
+The icons must be real image files in their repo. Phones refuse to install an
+app whose icon is a broken link or the wrong file type, and they refuse quietly
+— the "Add to Home Screen" option simply never appears, with no explanation.
+
+The two icons are already in the express repository. Have them download both
+into their own repo root:
+
+  https://github.com/King-Tuerto/open-brain-express/raw/main/icon-192.png
+  https://github.com/King-Tuerto/open-brain-express/raw/main/icon-512.png
+
+(In GitHub: Add file -> Upload files, then drag both in and commit.)
+
+If they would rather make their own, any square PNG at those two sizes works.
 
 Have them:
 1. In their GitHub repo, click Add file → Create new file

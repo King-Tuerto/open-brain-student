@@ -20,11 +20,12 @@ This is called self-sovereignty. Your data belongs to you. You can export it any
 
 What you are building today is called your Open Brain. It is a simple but real application: you type a thought, you save it, it goes to your database. You can see all your thoughts. This is your foundation — every level that follows adds to this.
 
-Here is what you will be able to do by the time you finish all 5 levels:
+Here is what you will be able to do by the time you finish the series:
 — Capture YouTube videos, PDFs, and voice notes into your brain (Level 2)
 — Send thoughts to your brain by texting a bot from your phone (Level 3)
 — Have Claude read and search your brain natively, with full context (Level 4)
 — Run automated agents that process your brain while you sleep (Level 5)
+— Search by meaning instead of keywords, and watch your brain connect its own ideas together (Level 6)
 
 None of that works without what you build today. Start clean. Finish clean."
 
@@ -37,11 +38,12 @@ Esto se llama soberanía digital. Tus datos te pertenecen. Puedes exportarlos en
 
 Lo que estás construyendo hoy se llama tu Open Brain. Es una aplicación simple pero real: escribes un pensamiento, lo guardas, va a tu base de datos. Puedes ver todos tus pensamientos. Esta es tu fundación — cada nivel que sigue añade a esta.
 
-Aquí está lo que podrás hacer cuando termines los 5 niveles:
+Aquí está lo que podrás hacer cuando termines la serie:
 — Capturar videos de YouTube, PDFs y notas de voz en tu cerebro (Nivel 2)
 — Enviar pensamientos a tu cerebro enviando un mensaje a un bot desde tu teléfono (Nivel 3)
 — Hacer que Claude lea y busque en tu cerebro de forma nativa, con contexto completo (Nivel 4)
 — Ejecutar agentes automatizados que procesan tu cerebro mientras duermes (Nivel 5)
+— Buscar por significado en lugar de palabras, y ver cómo tu cerebro conecta sus propias ideas (Nivel 6)
 
 Nada de eso funciona sin lo que construyes hoy. Empieza limpio. Termina limpio."
 
@@ -138,7 +140,9 @@ Before telling them where to find the keys, deliver this explanation:
 
 An API key is a password that gives access to a service. There are two kinds in Supabase:
 
-1. Your anon public key — this one is SAFE to put in your code and push to GitHub. Supabase designed it this way on purpose. It has limited permissions and your database is protected by rules we set up in the migration. You will use this one.
+1. Your anon public key — this one is DESIGNED to be public. Supabase built it that way on purpose; it is meant to sit in a web page where anyone can read it. You will use this one.
+
+   Be precise about what that means, because this is where people form a wrong belief that bites them later: the key being public is safe. Whether your DATA is safe depends entirely on the rules you write in the database — and right now, those rules allow everything. Anyone with this key can read and change your thoughts. That is deliberate for today, and you will fix it in Level 2. Until then, do not put anything private in your brain.
 
 2. Your service role key — this one is NOT safe to share, ever. It bypasses all security rules and gives full access to your database. You will see it in Supabase settings. Do not copy it. Do not put it in your code. Do not share it. Treat it like a bank PIN.
 

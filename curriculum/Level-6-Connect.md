@@ -22,7 +22,7 @@ First: vector embeddings. Right now your search uses keyword matching — if you
 
 Second: a thought graph. Every time you save a new thought, your brain automatically finds its nearest neighbors — the thoughts most similar in meaning — and creates links between them. Over time this builds a web of connections. When you search, you do not just see direct results — you see what those results are connected to. Ideas you forgot about resurface because they are linked to ideas you are thinking about now.
 
-This is the architecture that powers your professor's personal brain. The same system that has 1,800+ auto-generated connections across 1,000+ thoughts. You are building your own version of it.
+This is the architecture that powers the author's own brain — a system with well over a thousand thoughts in it and thousands of connections it made by itself. You are building your own version of it.
 
 Future possibilities beyond this level: multi-hop retrieval where you follow connections 2-3 layers deep to find ideas you never would have searched for, link-type filtering so you can separate semantic connections from manual ones, graph visualization that shows your knowledge as a visual map, recommendation engine that pushes related thoughts to you proactively."
 
@@ -37,7 +37,7 @@ Primero: embeddings vectoriales. Ahora mismo tu búsqueda usa coincidencia de pa
 
 Segundo: un grafo de pensamientos. Cada vez que guardas un nuevo pensamiento, tu cerebro automáticamente encuentra a sus vecinos más cercanos — los pensamientos más similares en significado — y crea enlaces entre ellos. Con el tiempo esto construye una red de conexiones. Cuando buscas, no solo ves resultados directos — ves a qué están conectados esos resultados. Ideas que olvidaste resurgen porque están vinculadas a ideas en las que estás pensando ahora.
 
-Esta es la arquitectura que alimenta el cerebro personal de tu profesor. El mismo sistema que tiene más de 1,800 conexiones auto-generadas entre más de 1,000 pensamientos. Estás construyendo tu propia versión.
+Esta es la arquitectura que alimenta el cerebro personal del autor — un sistema con bastante más de mil pensamientos y miles de conexiones que se hicieron solas. Estás construyendo tu propia versión.
 
 Posibilidades futuras más allá de este nivel: recuperación multi-hop donde sigues conexiones 2-3 capas de profundidad para encontrar ideas que nunca habrías buscado, filtrado por tipo de enlace para separar conexiones semánticas de manuales, visualización del grafo que muestra tu conocimiento como un mapa visual, motor de recomendaciones que te empuja pensamientos relacionados proactivamente."
 
@@ -68,7 +68,27 @@ Posibilidades futuras más allá de este nivel: recuperación multi-hop donde si
    1 — Yes
    2 — I have fewer"
 
-If fewer than 50: "The graph needs real content to produce meaningful connections. Go back to your capture channels — web app, Telegram, voice — and feed the brain until you have at least 50 thoughts. The more you have, the more impressive the graph will be when it lights up."
+If they have fewer, DO NOT send them away. That is how people quit. Instead,
+offer to fill the brain right now — it takes about twenty minutes and it is the
+most enjoyable part of the whole series:
+
+  1. Ask for five to eight YouTube links of videos they actually watched and
+     learned something from. Capture each one. This is the fastest way to add
+     real substance — each video becomes several paragraphs, worth far more than
+     a dozen one-line notes.
+  2. Ask for three to five articles they bookmarked and meant to read.
+  3. Then interview them for ten to fifteen minutes and save the answers as
+     thoughts, in their own words. Ask what they are working on and what is hard
+     about it; something they learned recently that changed their mind; a problem
+     they have been chewing on; something they explain to people over and over;
+     what they want to be better at in a year; an opinion they hold that people
+     around them disagree with.
+
+Half-formed thoughts are the valuable ones — those are exactly what they will
+have forgotten in six months.
+
+Then continue. A thin brain makes this level less impressive, but it is never a
+reason to stop. Say so plainly.
 
 If all confirmed → proceed.
 

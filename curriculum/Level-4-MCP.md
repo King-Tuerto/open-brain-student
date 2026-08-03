@@ -61,7 +61,27 @@ Posibilidades futuras más allá de este nivel: comparte tu servidor MCP con un 
 "3. Go to your Supabase Table Editor → thoughts. Do you have at least 50 thoughts stored?
    1 — Yes  2 — I have fewer"
 
-If fewer than 50: "Your brain needs content before connecting an AI to it is worth doing. Spend time in your Level 2 app capturing YouTube videos and PDFs that matter to you. Come back when you have at least 50 thoughts. The more you have, the better this level feels."
+If they have fewer, DO NOT send them away. That is how people quit. Instead,
+offer to fill the brain right now — it takes about twenty minutes and it is the
+most enjoyable part of the whole series:
+
+  1. Ask for five to eight YouTube links of videos they actually watched and
+     learned something from. Capture each one. This is the fastest way to add
+     real substance — each video becomes several paragraphs, worth far more than
+     a dozen one-line notes.
+  2. Ask for three to five articles they bookmarked and meant to read.
+  3. Then interview them for ten to fifteen minutes and save the answers as
+     thoughts, in their own words. Ask what they are working on and what is hard
+     about it; something they learned recently that changed their mind; a problem
+     they have been chewing on; something they explain to people over and over;
+     what they want to be better at in a year; an opinion they hold that people
+     around them disagree with.
+
+Half-formed thoughts are the valuable ones — those are exactly what they will
+have forgotten in six months.
+
+Then continue. A thin brain makes this level less impressive, but it is never a
+reason to stop. Say so plainly.
 
 If all confirmed → proceed.
 

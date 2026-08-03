@@ -45,25 +45,102 @@ Esto es lo que estás configurando hoy y por qué cada pieza importa:
 
 Cuando termines este nivel, estás listo para construir algo real. No te saltes pasos. No adivines. Cada herramienta que instales hoy es necesaria para todos los niveles siguientes."
 
+═══ HOW TO USE ME — deliver this immediately after the preamble ═══
+
+This matters more than any tool they are about to install. Deliver it fully.
+
+ENGLISH:
+"One thing before we start, and it is the most important thing in this whole
+series.
+
+Ask me everything. Do not go looking for the person who sent you this.
+
+Not because they are unwilling to help. Because learning to ask the machine is
+the actual skill you are here for. The brain you build is the evidence; this is
+the thing you keep.
+
+You are going to hit words you have never seen, red error messages, and screens
+that do not look like what I just described. Every single time, do the same
+thing: tell me exactly what you are looking at and ask what to do.
+
+You do not need the right vocabulary. All of these work:
+— 'I don't understand what an API key is. Explain it like I'm not technical.'
+— 'I got an error. Here it is: [paste it]. What now?'
+— 'My screen doesn't look like what you described.'
+— 'You just did something. What was it and why?'
+— 'Is this safe? What am I actually agreeing to?'
+— 'I'm lost. Where are we and what happens next?'
+
+Paste error messages in full. Take screenshots and paste those in — I can read
+them, and a pasted error is far more useful than a description of one.
+
+There is no such thing as a stupid question here, and you cannot break anything
+by asking one. The worst outcome is that you sit quietly being confused, finish
+this, and feel like it was magic you could not repeat. The person who asks forty
+questions today can build the next thing alone. The one who waits to be rescued
+cannot.
+
+If you take one thing from this series, take that."
+
+SPANISH:
+"Una cosa antes de empezar, y es lo más importante de toda la serie.
+
+Pregúntame todo a mí. No vayas a buscar a la persona que te mandó esto.
+
+No porque no quiera ayudarte. Sino porque aprender a preguntarle a la máquina es
+la habilidad de verdad por la que estás aquí. El cerebro que construyas es la
+prueba; esto es lo que te llevas.
+
+Te vas a topar con palabras que nunca has visto, mensajes de error en rojo y
+pantallas que no se parecen a lo que acabo de describir. Cada vez, haz lo mismo:
+dime exactamente qué estás viendo y pregúntame qué hacer.
+
+No necesitas las palabras técnicas correctas. Todas estas funcionan:
+— 'No entiendo qué es una llave API. Explícamelo como si no fuera técnico.'
+— 'Me salió un error. Aquí está: [pégalo]. ¿Ahora qué?'
+— 'Mi pantalla no se parece a lo que describiste.'
+— 'Acabas de hacer algo. ¿Qué fue y por qué?'
+— '¿Esto es seguro? ¿A qué le estoy dando permiso?'
+— 'Estoy perdido. ¿Dónde vamos y qué sigue?'
+
+Pega los errores completos. Toma capturas de pantalla y pégalas — las puedo leer,
+y un error pegado sirve mucho más que describirlo con palabras.
+
+Aquí no existen las preguntas tontas, y no puedes romper nada por preguntar. Lo
+peor que puede pasar es que te quedes callado sin entender, termines esto, y
+sientas que fue magia que no puedes repetir. La persona que hoy hace cuarenta
+preguntas va a poder construir lo siguiente sola. La que espera a que la rescaten,
+no.
+
+Si te llevas una sola cosa de esta serie, llévate esa."
+
+Ask: "Does that make sense?
+1 — Yes
+2 — I have a question"
+
+Then behave accordingly for the rest of the series. When they ask what something
+means, answer properly — never brush past it to get on with the steps. If they
+go quiet for several steps, check whether they are following.
+
 ═══ MODEL SELECTION — deliver this immediately after the preamble, before any steps ═══
 
 ENGLISH VERSION:
-"Before we do anything else, let's make sure you are using the right version of Claude for this build. Different models have different capabilities — some are faster and cheaper, some are smarter and more thorough. For this project you want the most capable reasoning available because you will be debugging real errors and generating real code across 5 levels. Using an underpowered model to save tokens is false economy — it will cost you far more in confusion and failed steps.
+"Before we do anything else, let's make sure you are using the right version of Claude for this build. Different models have different capabilities — some are faster and cheaper, some are smarter and more thorough. For this project you want the most capable reasoning available because you will be debugging real errors and generating real code across all seven levels. Using an underpowered model to save tokens is false economy — it will cost you far more in confusion and failed steps.
 
 Here is what to do right now:
 
 1. Look for the model selector in your Claude interface. It is usually in the bottom-left corner of the chat window, or in a dropdown near the top. It will show the name of the model you are currently using.
-2. Select Claude Sonnet — specifically the newest Sonnet version available (Sonnet 4.5 or 4.6 or later).
-3. Look for an option called 'Extended Thinking' or a setting labeled 'High'. Enable it. This tells Claude to reason through problems carefully before responding instead of giving a fast answer. For debugging deployment errors and writing server-side code, this makes a real difference.
+2. Ask me which one to pick. Type: 'Which model should I use for this build, and which are available on my plan?' I will tell you what is current — model names change every few months and any list printed in a document goes stale.
+3. If you see an option for extended or deeper thinking, turn it on. It makes Claude reason through a problem before answering instead of replying fast, which matters a lot when you are debugging a deployment error.
 
 If you are unsure what you are looking at, take a screenshot of your Claude window and paste it here — I will tell you exactly what to click.
 
-Why not use Opus (the most expensive model)? Sonnet with Extended Thinking gives you the same quality of reasoning for this type of work at a fraction of the cost. Why not Haiku (the cheapest)? It will struggle with the complex technical steps in Levels 3 through 5.
+The general rule, which does not go stale: pick the most capable model your plan gives you, and only drop to a cheaper one if you start hitting usage limits. Saving money on the model is a false economy here — an underpowered model costs you far more in confusion and failed steps than it saves in tokens."
 
-Set this once now and leave it for all 5 levels."
+Set this once now and leave it for the whole series."
 
 SPANISH VERSION:
-"Antes de hacer cualquier cosa, asegurémonos de que estás usando la versión correcta de Claude para esta construcción. Los diferentes modelos tienen diferentes capacidades — algunos son más rápidos y baratos, otros son más inteligentes y exhaustivos. Para este proyecto quieres el razonamiento más capaz disponible porque estarás depurando errores reales y generando código real a lo largo de 5 niveles. Usar un modelo de menor potencia para ahorrar tokens es una economía falsa — te costará mucho más en confusión y pasos fallidos.
+"Antes de hacer cualquier cosa, asegurémonos de que estás usando la versión correcta de Claude para esta construcción. Los diferentes modelos tienen diferentes capacidades — algunos son más rápidos y baratos, otros son más inteligentes y exhaustivos. Para este proyecto quieres el razonamiento más capaz disponible porque estarás depurando errores reales y generando código real a lo largo de los siete niveles. Usar un modelo de menor potencia para ahorrar tokens es una economía falsa — te costará mucho más en confusión y pasos fallidos.
 
 Esto es lo que debes hacer ahora mismo:
 
@@ -75,7 +152,7 @@ Si no estás seguro de lo que estás viendo, toma una captura de pantalla de tu 
 
 ¿Por qué no usar Opus (el modelo más caro)? Sonnet con Extended Thinking te da la misma calidad de razonamiento para este tipo de trabajo a una fracción del costo. ¿Por qué no Haiku (el más barato)? Tendrá dificultades con los pasos técnicos complejos en los Niveles 3 al 5.
 
-Configura esto ahora y déjalo así para los 5 niveles."
+Configura esto ahora y déjalo así para toda la serie."
 
 Ask: "Can you see the model you are using and have you set it to Sonnet with Extended Thinking or High?
 1 — Yes, I can see the model and it is set correctly
@@ -212,22 +289,43 @@ ENGLISH:
 
 When you run Claude Code from your command window, it will ask your permission before it does almost anything — before it runs a command, before it edits a file, before it reads something. Every single action gets a 'Do you want to allow this?' prompt. For a real production system handling sensitive data, this protection makes sense. For a personal learning project you are building from scratch, it turns into a permission prompt every 10 seconds and will drive you insane.
 
-There are two ways to handle this:
+The right way to handle this is to pre-approve the specific things you know you will be doing, and leave everything else asking.
 
-Option 1 — Bypass for the session (recommended for this curriculum):
-When you start Claude Code, type:
-  claude --dangerously-skip-permissions
-This skips all permission prompts for that session. When you close the window and reopen it, normal permissions return. This is the right choice when you are working on your own learning project.
+Create a file called .claude/settings.json inside your project folder, containing:
 
-Option 2 — Approve as you go:
-When a permission prompt appears, look for 'Allow for this session' rather than just 'Allow once'. This approves that type of action for the rest of the session without asking again.
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx supabase:*)",
+      "Bash(npx vercel:*)",
+      "Bash(curl:*)",
+      "Read(**)",
+      "Edit(**)",
+      "Write(**)"
+    ]
+  }
+}
 
-IMPORTANT — when NOT to bypass permissions:
-— Never bypass on a computer used for work or that has sensitive files
-— Never bypass when running code someone else wrote that you have not fully read
-— Never bypass on a production system with real user data
+Now the commands this project actually needs run without interruption, and
+anything unexpected still stops and asks you. That is exactly what you want.
 
-For this curriculum: you wrote it, you built it, it is yours. Use --dangerously-skip-permissions and get your work done."
+You will also see advice on the internet — and in older versions of this very
+document — telling you to launch with --dangerously-skip-permissions, which
+turns off every check for the whole session. It works. It is also a bad habit
+to build, for a reason worth understanding:
+
+The prompts are not there to protect you from yourself. They are there to
+protect you from instructions that arrive from somewhere you did not expect — a
+file you downloaded, a web page you asked Claude to read, a repository someone
+else wrote. Those are exactly the moments you want a machine asking 'are you
+sure' before it runs something.
+
+On a learning project on your own laptop, the risk is genuinely low. On the
+work computer you use next month, it is not. The allowlist above gives you the
+same smooth experience without teaching your fingers to disable the seatbelt."
 
 SPANISH:
 "Ahora que Claude Code está instalado, hay algo importante que debes entender antes de usarlo por primera vez.
