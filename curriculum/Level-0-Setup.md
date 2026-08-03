@@ -145,12 +145,12 @@ SPANISH VERSION:
 Esto es lo que debes hacer ahora mismo:
 
 1. Busca el selector de modelos en tu interfaz de Claude. Generalmente está en la esquina inferior izquierda de la ventana de chat, o en un menú desplegable cerca de la parte superior. Mostrará el nombre del modelo que estás usando actualmente.
-2. Selecciona Claude Sonnet — específicamente la versión más nueva de Sonnet disponible (Sonnet 4.5 o 4.6 o posterior).
-3. Busca una opción llamada 'Extended Thinking' o una configuración etiquetada como 'High'. Actívala. Esto le dice a Claude que razone cuidadosamente los problemas antes de responder en lugar de dar una respuesta rápida. Para depurar errores de despliegue y escribir código del lado del servidor, esto hace una diferencia real.
+2. Pregúntame cuál usar. Escribe: '¿Qué modelo debo usar para esta construcción, y cuáles están disponibles en mi plan?' Yo te digo cuál es el actual — los nombres de los modelos cambian cada pocos meses y cualquier lista escrita en un documento se queda vieja.
+3. Si ves una opción de pensamiento extendido o profundo, actívala. Hace que Claude razone el problema antes de contestar en lugar de responder rápido, y eso importa mucho cuando estás depurando un error de despliegue.
 
-Si no estás seguro de lo que estás viendo, toma una captura de pantalla de tu ventana de Claude y pégala aquí — te diré exactamente qué hacer clic.
+Si no estás seguro de lo que estás viendo, toma una captura de pantalla de tu ventana de Claude y pégala aquí — te diré exactamente dónde hacer clic.
 
-¿Por qué no usar Opus (el modelo más caro)? Sonnet con Extended Thinking te da la misma calidad de razonamiento para este tipo de trabajo a una fracción del costo. ¿Por qué no Haiku (el más barato)? Tendrá dificultades con los pasos técnicos complejos en los Niveles 3 al 5.
+La regla general, que no se queda vieja: usa el modelo más capaz que te dé tu plan, y bájate a uno más barato solo si empiezas a toparte con los límites de uso. Ahorrar dinero en el modelo aquí es una economía falsa — un modelo de menor potencia te cuesta mucho más en confusión y pasos fallidos de lo que te ahorra en tokens.
 
 Configura esto ahora y déjalo así para toda la serie."
 
@@ -332,24 +332,49 @@ SPANISH:
 
 Cuando ejecutas Claude Code desde tu ventana de comandos, te pedirá permiso antes de hacer casi cualquier cosa — antes de ejecutar un comando, antes de editar un archivo, antes de leer algo. Cada acción individual obtiene un aviso de '¿Quieres permitir esto?'. Para un sistema de producción real que maneja datos sensibles, esta protección tiene sentido. Para un proyecto de aprendizaje personal que estás construyendo desde cero, se convierte en un aviso de permiso cada 10 segundos y te volverá loco.
 
-Hay dos formas de manejar esto:
+La forma correcta de manejarlo es pre-aprobar las cosas específicas que sabes que
+vas a estar haciendo, y dejar que todo lo demás siga preguntando.
 
-Opción 1 — Omitir para la sesión (recomendado para este currículo):
-Cuando inicies Claude Code, escribe:
-  claude --dangerously-skip-permissions
-Esto omite todos los avisos de permiso para esa sesión. Cuando cierres la ventana y la vuelvas a abrir, los permisos normales regresan. Esta es la opción correcta cuando estás trabajando en tu propio proyecto de aprendizaje.
+Crea un archivo llamado .claude/settings.json dentro de la carpeta de tu
+proyecto, con esto adentro:
 
-Opción 2 — Aprobar sobre la marcha:
-Cuando aparezca un aviso de permiso, busca 'Allow for this session' en lugar de solo 'Allow once'. Esto aprueba ese tipo de acción para el resto de la sesión sin volver a preguntar.
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx supabase:*)",
+      "Bash(npx vercel:*)",
+      "Bash(curl:*)",
+      "Read(**)",
+      "Edit(**)",
+      "Write(**)"
+    ]
+  }
+}
 
-IMPORTANTE — cuándo NO omitir permisos:
-— Nunca omitas en una computadora usada para trabajo o que tiene archivos sensibles
-— Nunca omitas cuando ejecutes código que alguien más escribió y que no has leído completamente
-— Nunca omitas en un sistema de producción con datos de usuarios reales
+Ahora los comandos que este proyecto de verdad necesita corren sin
+interrupciones, y cualquier cosa inesperada se sigue deteniendo a preguntarte.
+Eso es exactamente lo que quieres.
 
-Para este currículo: tú lo escribiste, tú lo construiste, es tuyo. Usa --dangerously-skip-permissions y haz tu trabajo."
+También vas a ver consejos en internet — y en versiones anteriores de este mismo
+documento — diciéndote que arranques con --dangerously-skip-permissions, que
+apaga todas las verificaciones durante toda la sesión. Funciona. También es un
+mal hábito, por una razón que vale la pena entender:
 
-Ask: "Do you understand the difference between when to bypass permissions and when not to?
+Los avisos no están ahí para protegerte de ti mismo. Están para protegerte de
+instrucciones que llegan de donde no esperabas — un archivo que descargaste, una
+página web que le pediste a Claude que leyera, un repositorio que escribió otra
+persona. Esos son justo los momentos en los que quieres que una máquina pregunte
+'¿estás seguro?' antes de ejecutar algo.
+
+En un proyecto de aprendizaje en tu propia computadora, el riesgo es bajo de
+verdad. En la computadora del trabajo que uses el mes que entra, no. La lista de
+arriba te da la misma experiencia fluida sin enseñarle a tus dedos a quitarse el
+cinturón de seguridad."
+
+Ask: "Does that make sense — pre-approving what you need, instead of switching everything off?
 1 — Yes
 2 — I have a question"
 
