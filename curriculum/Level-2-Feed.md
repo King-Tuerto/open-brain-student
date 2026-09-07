@@ -193,6 +193,47 @@ create policy "own_thoughts" on thoughts
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
+-- A place to hold WHERE a capture came from — a YouTube video id, a URL —
+-- structured instead of buried in a text note. Level 7 uses this to keep one
+-- long document from flooding every search result.
+alter table thoughts add column if not exists metadata jsonb default '{}'::jsonb;
+
+-- The full text behind a capture, kept separate from the short note you see
+-- in your lists. Today the two often hold the same words, because nothing in
+-- this course summarizes YouTube or URL captures yet — that is fine, this
+-- table's job right now is simply to make sure the full text has a proper
+-- home instead of only ever living inside `content`. It matters more once
+-- Level 7 makes it searchable at the level of a single paragraph, not just
+-- the whole document.
+create table if not exists thought_sources (
+  id          uuid primary key default gen_random_uuid(),
+  thought_id  uuid not null references thoughts(id) on delete cascade,
+  user_id     uuid references auth.users(id) on delete cascade,
+  source_text text not null,
+  source_kind text not null,
+  char_count  int  not null,
+  truncated   boolean not null default false,
+  created_at  timestamptz not null default now(),
+  constraint thought_sources_one_per_thought unique (thought_id)
+);
+
+alter table thought_sources enable row level security;
+
+drop policy if exists "own_sources" on thought_sources;
+create policy "own_sources" on thought_sources
+  for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+Explain: "One thing here is different from how Express (the pre-built version
+of this same project) does it. Express only ever writes thought_sources from
+its own server, so it locks that table down to server-only access. Your app is
+still saving straight from the browser at this point in the course — Level 3
+is where you get a server — so this table needs its own row-level-security
+rule, own_sources, scoped to the signed-in user the same way own_thoughts is.
+Once your captures move server-side later, this still works exactly the same."
+
 Then have them turn off email confirmation so signing up does not require
 waiting for an email mid-build:
   Supabase -> Authentication -> Sign In / Providers -> Email -> uncheck
@@ -216,6 +257,16 @@ The upgraded index.html you generate in the next step MUST include:
 - supabase.auth.onAuthStateChange to swap between the login screen and the app
 - user_id: user.id included on every insert
 - A sign out button
+- A small decodeEntities(text) helper used on anything pulled out of a PDF or
+  pasted from a web page before it is shown or saved — PDF text extraction and
+  copy-pasted HTML occasionally leave literal entity codes behind (&amp;,
+  &rsquo;, &ntilde;, &iexcl;) instead of the character they stand for, and that
+  hits Spanish text hardest, since accented letters and ¡ ¿ show up constantly
+  in everyday Spanish writing. Decode at least: &amp; &lt; &gt; &quot; &#39;
+  &nbsp; &rsquo; &lsquo; &rdquo; &ldquo; &mdash; &ndash; &hellip; &aacute;
+  &eacute; &iacute; &oacute; &uacute; &ntilde; &iexcl; &iquest; (uppercase
+  variants too), decoding &amp; LAST so a double-escaped "&amp;lt;" cannot
+  turn into a real "<" by accident
 
 Ask: "Did the SQL run without errors?
 1 — Yes
@@ -227,6 +278,103 @@ After the app is redeployed later in this level, send them back to the private
 window and have them reload. They should now see a login screen and nothing
 else. Have them confirm that. Closing the loop is the part that makes the lesson
 stick.
+
+═══ STEP 0b — KEEP YOUR PROJECT FROM FALLING ASLEEP ═══
+
+ENGLISH: "One more piece of housekeeping, and it matters more today than it
+will later. Supabase pauses a free project after about a week with nobody
+really using it. Level 1 was a five-minute test — nobody would notice if that
+one paused. This level is different: you are about to spend real time filling
+your brain with things you actually watched and read. If you get busy for ten
+days after this session, the LAST thing that should happen is your brain
+looking broken the next time you open it.
+
+We have not covered scheduled tasks yet — that is a proper topic in Level 5.
+For now, just run this: it is a tiny, harmless check-in that happens twice a
+week on its own, so nothing ever goes quiet long enough to pause."
+
+SPANISH: "Un pendiente más, y hoy importa más de lo que va a importar después.
+Supabase pausa un proyecto gratuito después de más o menos una semana sin uso
+real. El Nivel 1 fue una prueba de cinco minutos — a nadie le habría importado
+que se pausara. Este nivel es distinto: estás a punto de pasar tiempo de
+verdad llenando tu cerebro con cosas que de verdad viste y leíste. Si te
+ocupas diez días después de esta sesión, lo ÚLTIMO que debería pasar es que tu
+cerebro se vea roto la próxima vez que lo abras.
+
+Todavía no hemos visto tareas programadas — eso es tema propio del Nivel 5.
+Por ahora, solo corre esto: es un check-in pequeño e inofensivo que pasa dos
+veces por semana solo, para que nunca haya silencio suficiente como para que
+se pause."
+
+Have them run this in the SQL Editor, with their own project ref and anon key
+(Settings -> API) filled in:
+
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+grant usage on schema cron to postgres;
+
+do $$
+begin
+  if exists (select 1 from cron.job where jobname = 'keep-brain-awake') then
+    perform cron.unschedule('keep-brain-awake');
+  end if;
+end $$;
+
+select cron.schedule(
+  'keep-brain-awake',
+  '0 9 * * 0,3',
+  $CRON$
+    select net.http_get(
+      url := 'https://THEIR_PROJECT_REF.supabase.co/rest/v1/thoughts?select=id&limit=1',
+      headers := '{"apikey":"THEIR_ANON_KEY","Authorization":"Bearer THEIR_ANON_KEY"}'::jsonb
+    );
+  $CRON$
+);
+
+Explain: "Use the anon key here, never the service role key — this only reads
+a table that key already has no access to (it gets back an empty list, and
+that is fine, it was still a real request that reached your API). There is
+nothing secret in this block."
+
+Confirm it: select jobname, schedule from cron.job;
+
+Then add a second, independent backstop, since this one lives entirely inside
+Supabase and it is worth not depending on just one mechanism. Have them create
+a new file in their GitHub repo (Add file -> Create new file, same as
+manifest.json and sw.js later in this level):
+
+  Path: .github/workflows/keep-alive.yml
+
+name: Keep the brain awake
+on:
+  schedule:
+    - cron: '0 10 * * 1,5'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ping the project's own API
+        run: |
+          URL=$(grep "SUPABASE_URL" config.js | sed -E "s/.*'([^']*)'.*/\1/")
+          KEY=$(grep "SUPABASE_ANON_KEY" config.js | sed -E "s/.*'([^']*)'.*/\1/")
+          curl -sf "$URL/rest/v1/thoughts?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -o /dev/null
+
+Explain: "This reads your own config.js, so there is nothing to fill in by
+hand. One catch: GitHub disables scheduled workflows on a repo the moment it
+is forked, so this will not run until you turn it on."
+
+Have them:
+1. Go to their repo's Actions tab
+2. If prompted, click "I understand my workflows, enable them"
+3. Click into "Keep the brain awake" -> Run workflow -> Run workflow
+4. Wait for the run to finish with a green check
+
+Ask: "Do you see two things confirmed — the cron.job row from the SQL query,
+and a green check on the GitHub Actions run?
+1 — Yes, both
+2 — Something's missing — I'll paste what I see"
 
 ═══ WHAT YOU ARE BUILDING ═══
 
@@ -248,10 +396,11 @@ VOICE CAPTURE TAB:
 YOUTUBE TAB:
 - Text field for YouTube URL
 - Extract video ID from URL
-- Fetch YouTube oEmbed data to get title and thumbnail
+- Fetch YouTube oEmbed data to get title and thumbnail — run its title through decodeEntities before displaying or saving it
 - Display a "Get Transcript" button that links directly to the YouTube transcript page (youtube.com/watch?v=ID with transcript panel open)
 - Explain to user they need to copy the transcript from YouTube and paste it into a text area
-- Save the transcript text + video title to the thoughts table with a note that it came from YouTube
+- Save the transcript text + video title to the thoughts table with a note that it came from YouTube, with metadata: { video_id } set on that insert
+- After the thought saves, insert a row into thought_sources for it too: thought_id, user_id, source_text (the pasted transcript), source_kind: 'youtube_transcript', char_count (its length), truncated: false. A failed insert here should not block the capture — the thought is already saved either way, so wrap it and only log a warning on failure.
 
 PDF TAB:
 - Drag-and-drop zone for PDF files
@@ -264,7 +413,8 @@ URL TAB:
 - Text field for any URL
 - Explain that due to browser security, they need to paste the article text manually
 - Provide a text area for the content
-- URL is stored alongside the content in a note field
+- URL is stored alongside the content in a note field, and also as metadata: { url } on that insert
+- After the thought saves, insert a row into thought_sources the same way as the YouTube tab: source_text is the pasted article text, source_kind: 'web'. Same rule — non-fatal on failure.
 
 SEARCH TAB:
 - Search box that queries the Supabase thoughts table using ilike for keyword matching
@@ -287,6 +437,7 @@ DESIGN:
 DATABASE:
 - All captures save to the same thoughts table from Level 1
 - Use a source field or note in the content to identify where it came from (e.g., "📹 YouTube: [title]" or "📄 PDF: [filename]")
+- YouTube and URL captures additionally set metadata (video_id or url) on the thought and write the full pasted text to thought_sources, per those tabs above
 
 After generating the code, ask the student: "I have generated your upgraded app. Copy everything I just wrote — starting from the very first line to the very last line. Type 1 when you have it all selected and copied.
 1 — Copied

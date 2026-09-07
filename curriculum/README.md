@@ -1,6 +1,6 @@
 # The curriculum
 
-The seven teaching prompts for building your Open Brain, step by step.
+The eight teaching prompts for building your Open Brain, step by step.
 
 **Do them in order.** Each level assumes the previous one is working.
 
@@ -13,6 +13,7 @@ The seven teaching prompts for building your Open Brain, step by step.
 | [Level 4](Level-4-MCP.md) | Claude reads your brain natively, through MCP |
 | [Level 5](Level-5-Agents.md) | Agents that tag your thoughts and write you a weekly digest |
 | [Level 6](Level-6-Connect.md) | Search by meaning, and a graph that connects your ideas |
+| [Level 7](Level-7-Retrieve.md) | Hybrid search, chunking, and a backfill over everything you have already captured |
 
 Open Level 0, paste it into Claude, and follow along. When it is done, open
 Level 1.
@@ -47,6 +48,7 @@ working version:
 | MCP server (Level 4) | [open-brain-mcp](https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/open-brain-mcp/index.ts) |
 | Enrichment agent (Level 5) | [enrich-thought](https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/enrich-thought/index.ts) |
 | Embeddings and the graph (Level 6) | [migration.sql](https://github.com/King-Tuerto/open-brain-express/blob/main/migration.sql) |
+| Hybrid search, chunking, backfill (Level 7) | [migration.sql](https://github.com/King-Tuerto/open-brain-express/blob/main/migration.sql), [backfill-brain](https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/backfill-brain/index.ts) |
 | YouTube capture | [capture-youtube](https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/capture-youtube/index.ts) |
 
 Use these to spot what is missing from yours — not to copy wholesale. Reading

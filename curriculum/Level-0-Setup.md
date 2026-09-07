@@ -125,7 +125,7 @@ go quiet for several steps, check whether they are following.
 ═══ MODEL SELECTION — deliver this immediately after the preamble, before any steps ═══
 
 ENGLISH VERSION:
-"Before we do anything else, let's make sure you are using the right version of Claude for this build. Different models have different capabilities — some are faster and cheaper, some are smarter and more thorough. For this project you want the most capable reasoning available because you will be debugging real errors and generating real code across all seven levels. Using an underpowered model to save tokens is false economy — it will cost you far more in confusion and failed steps.
+"Before we do anything else, let's make sure you are using the right version of Claude for this build. Different models have different capabilities — some are faster and cheaper, some are smarter and more thorough. For this project you want the most capable reasoning available because you will be debugging real errors and generating real code across all eight levels. Using an underpowered model to save tokens is false economy — it will cost you far more in confusion and failed steps.
 
 Here is what to do right now:
 
@@ -140,7 +140,7 @@ The general rule, which does not go stale: pick the most capable model your plan
 Set this once now and leave it for the whole series."
 
 SPANISH VERSION:
-"Antes de hacer cualquier cosa, asegurémonos de que estás usando la versión correcta de Claude para esta construcción. Los diferentes modelos tienen diferentes capacidades — algunos son más rápidos y baratos, otros son más inteligentes y exhaustivos. Para este proyecto quieres el razonamiento más capaz disponible porque estarás depurando errores reales y generando código real a lo largo de los siete niveles. Usar un modelo de menor potencia para ahorrar tokens es una economía falsa — te costará mucho más en confusión y pasos fallidos.
+"Antes de hacer cualquier cosa, asegurémonos de que estás usando la versión correcta de Claude para esta construcción. Los diferentes modelos tienen diferentes capacidades — algunos son más rápidos y baratos, otros son más inteligentes y exhaustivos. Para este proyecto quieres el razonamiento más capaz disponible porque estarás depurando errores reales y generando código real a lo largo de los ocho niveles. Usar un modelo de menor potencia para ahorrar tokens es una economía falsa — te costará mucho más en confusión y pasos fallidos.
 
 Esto es lo que debes hacer ahora mismo:
 

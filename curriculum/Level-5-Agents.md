@@ -158,6 +158,63 @@ Ask: "Is the key stored in Supabase secrets?
 1 — Yes
 2 — No — I'll take a screenshot"
 
+═══ STEP 1b — GIVE YOURSELF A RECEIPT FOR EVERY CALL ═══
+
+Explain: "One more thing before we build the gateway itself. Every agent you
+build from here on spends a fraction of a cent every time it runs. That should
+never be a number someone told you — it should be something you can look at.
+We are going to add one small table that records what every AI call actually
+cost, so 'a dollar a month or so' becomes a real number you can query."
+
+Have them run this in the SQL Editor:
+
+create table if not exists llm_usage (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid not null references auth.users(id) on delete cascade,
+  kind              text not null default 'chat',
+  model             text,
+  source            text,
+  prompt_tokens     integer default 0,
+  completion_tokens integer default 0,
+  cost_usd          numeric(12,8) default 0,
+  created_at        timestamptz not null default now()
+);
+
+create index if not exists idx_usage_user_time on llm_usage(user_id, created_at desc);
+
+alter table llm_usage enable row level security;
+
+drop policy if exists "own_usage_select" on llm_usage;
+create policy "own_usage_select" on llm_usage
+  for select to authenticated
+  using (auth.uid() = user_id);
+
+create or replace function my_spend()
+returns table (month_usd numeric, month_calls bigint, total_usd numeric, total_calls bigint)
+language plpgsql stable as $$
+begin
+  return query
+    select
+      coalesce(sum(u.cost_usd) filter (where u.created_at >= date_trunc('month', now())), 0)::numeric,
+      count(*) filter (where u.created_at >= date_trunc('month', now()))::bigint,
+      coalesce(sum(u.cost_usd), 0)::numeric,
+      count(*)::bigint
+    from llm_usage u
+    where u.user_id = auth.uid();
+end;
+$$;
+
+Explain: "That last part, my_spend, runs AS the person asking, so row level
+security means you can only ever total up your own calls — never anyone else's.
+This has one rule that matters more than any other: writing a usage row must
+never be able to break a real save. If the AI call already worked and the
+enrichment already happened, a failure to log its cost is a shrug, not an
+error. You will see that rule enforced in the code in the next step."
+
+Ask: "Did the SQL run without errors?
+1 — Yes
+2 — Error — I'll paste what I see"
+
 ═══ STEP 2 — BUILD THE LLM GATEWAY FUNCTION ═══
 
 Generate a complete Supabase Edge Function called call-llm:
@@ -173,6 +230,13 @@ The function should:
   put that name in their secrets. If you are unsure what is current, say so and
   suggest they ask you in a fresh conversation.
 - Call the Anthropic API with the provided prompt
+- Accept an optional { userId?, source? } in the request body — who to bill this
+  call to, and which function spent it
+- After a successful call, fire off (do NOT await) an insert into llm_usage with
+  the userId, model, prompt/completion token counts from the API response, and
+  an estimated cost_usd if you can compute one from the model's published price
+  — 0 if not. Wrap it in a try/catch that swallows every error. A failed log
+  must never fail the call that triggered it — the AI already answered.
 - Return { text: string } in the response
 - Include a comment at the top: "To switch providers, change LLM_PROVIDER in Supabase secrets. Add the new provider's API key. No other code changes needed."
 - Include error handling
@@ -212,7 +276,7 @@ Then generate a complete Supabase Edge Function called enrich-thought:
 The function should:
 - Accept POST requests from Supabase database webhooks (the payload contains the new thought record)
 - Extract the thought content from the webhook payload
-- Call the call-llm function with a prompt that asks for: tags (array of 3-5 short tags), category (one of: idea, learning, question, reference, plan, reflection), summary (one sentence max)
+- Call the call-llm function with a prompt that asks for: tags (array of 3-5 short tags), category (one of: idea, learning, question, reference, plan, reflection), summary (one sentence max) — pass userId as the thought's own user_id from the webhook payload, and source: 'enrich-thought', so the spend it causes lands attributed to the right person
 - Parse the JSON response from the LLM
 - Update the thoughts table row with the enrichment data
 - Return 200 OK (always — webhook functions should not fail)
@@ -282,6 +346,16 @@ Ask: "Does your new thought show tags, a category, and a summary?
 
 If empty: check the edge function logs in Supabase → Edge Functions → enrich-thought → Logs.
 
+Then have them run this in the SQL Editor: select * from my_spend();
+
+Explain: "That is the receipt. month_calls and total_calls should already show at
+least the one call you just made. From here on, any time you wonder what this is
+costing you, that query has the real answer — not an estimate."
+
+Ask: "Do you see at least one call counted?
+1 — Yes
+2 — Shows zero — I'll paste what I see"
+
 ═══ STEP 5 — BUILD THE WEEKLY DIGEST AGENT ═══
 
 Generate a complete Supabase Edge Function called weekly-digest:
@@ -291,7 +365,7 @@ The function should:
 - Query the thoughts table for all thoughts from the last 7 days
 - If fewer than 5 thoughts, return early with a note in the logs (not enough content)
 - Group them by category (using the category column from enrichment)
-- Call the call-llm function with a prompt that asks for: a weekly summary organized by what the person was learning, key themes, and one question they seem to be exploring
+- Call the call-llm function with a prompt that asks for: a weekly summary organized by what the person was learning, key themes, and one question they seem to be exploring — pass userId (the thoughts all belong to the one signed-up user, so their id from auth.users) and source: 'weekly-digest'
 - Format the result as readable text
 - Save the digest as a new thought in the thoughts table with category 'digest'
 - Optionally: if they have email configured, send it via a simple email API (guide them to set up Resend.com free tier if they want email delivery)
@@ -389,10 +463,13 @@ Where to go from here — none of this is in the curriculum, you figure it out:
 — Train a fine-tuned model on your brain content
 — Build an agent that reads your email, extracts what is worth keeping, and captures it automatically
 
-One more level. Level 6 is the one that changes how the brain FEELS to use: search
+Two more levels. Level 6 is the one that changes how the brain FEELS to use: search
 stops matching words and starts matching meaning, and your thoughts begin linking
 themselves together. Ask for "how do I get new clients" and it finds the note you
-wrote about customer acquisition, in completely different words.
+wrote about customer acquisition, in completely different words. Level 7 after it
+is what makes that search actually reliable once your brain gets big — chunking
+long captures, fusing meaning with exact keywords, and catching up anything you
+saved before today.
 
 When you are ready, open the Level 6 prompt."
 
@@ -421,11 +498,14 @@ A dónde ir desde aquí — nada de esto está en el currículo, tú lo descifra
 — Entrena un modelo fine-tuned con el contenido de tu cerebro
 — Construye un agente que lea tu correo electrónico, extraiga lo que vale la pena conservar y lo capture automáticamente
 
-Falta un nivel. El Nivel 6 es el que cambia cómo se SIENTE usar el cerebro: la
+Faltan dos niveles. El Nivel 6 es el que cambia cómo se SIENTE usar el cerebro: la
 búsqueda deja de coincidir palabras y empieza a coincidir significados, y tus
 pensamientos empiezan a enlazarse solos. Pide "cómo consigo clientes nuevos" y
 encuentra la nota que escribiste sobre captación, con palabras completamente
-distintas.
+distintas. El Nivel 7 que sigue es lo que hace esa búsqueda de verdad confiable
+cuando tu cerebro crece — dividiendo capturas largas en fragmentos, fusionando
+significado con palabras clave exactas, y poniendo al día todo lo que guardaste
+antes de hoy.
 
 Cuando estés listo, abre el prompt del Nivel 6."
 ```

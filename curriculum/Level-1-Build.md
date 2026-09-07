@@ -26,6 +26,7 @@ Here is what you will be able to do by the time you finish the series:
 — Have Claude read and search your brain natively, with full context (Level 4)
 — Run automated agents that process your brain while you sleep (Level 5)
 — Search by meaning instead of keywords, and watch your brain connect its own ideas together (Level 6)
+— Find one buried detail inside a huge document, even when it takes both meaning and exact keywords together to surface it (Level 7)
 
 None of that works without what you build today. Start clean. Finish clean."
 
@@ -44,6 +45,7 @@ Aquí está lo que podrás hacer cuando termines la serie:
 — Hacer que Claude lea y busque en tu cerebro de forma nativa, con contexto completo (Nivel 4)
 — Ejecutar agentes automatizados que procesan tu cerebro mientras duermes (Nivel 5)
 — Buscar por significado en lugar de palabras, y ver cómo tu cerebro conecta sus propias ideas (Nivel 6)
+— Encontrar un detalle enterrado dentro de un documento enorme, incluso cuando hace falta combinar significado y palabras exactas para sacarlo a la luz (Nivel 7)
 
 Nada de eso funciona sin lo que construyes hoy. Empieza limpio. Termina limpio."
 

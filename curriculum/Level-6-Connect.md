@@ -122,6 +122,78 @@ Cada vez que guardes un nuevo pensamiento, vamos a comparar su embedding contra 
 
 El umbral de 50% fue probado en un cerebro real con más de 1,000 pensamientos. Produjo aproximadamente 1,800 conexiones significativas — suficientes para ser útiles, no tantas que todo se conecta con todo."
 
+═══ STEP 0 — STOP SAVING THE SAME THOUGHT TWICE ═══
+
+Explain: "Quick detour before the main event, and worth doing here while we are
+already deep in the schema: right now, if the same content gets saved twice —
+you paste a link a second time, Telegram redelivers a message after a slow
+reply — nothing stops it. You get two identical rows. A check-before-insert
+in your own code cannot fix this properly; it is a race between the check and
+the insert that your code cannot win. Only the database itself can refuse the
+second copy atomically. That is what we are adding."
+
+Have them run this in the SQL Editor:
+
+alter table thoughts
+  add column if not exists content_hash text generated always as (md5(content)) stored;
+
+alter table thoughts add column if not exists dedup_key text;
+
+create or replace function thoughts_set_dedup_key()
+returns trigger language plpgsql as $$
+begin
+  if TG_OP = 'INSERT' then
+    if new.dedup_key is null then
+      new.dedup_key := md5(new.content);
+    end if;
+  elsif TG_OP = 'UPDATE' and new.content is distinct from old.content then
+    if old.dedup_key = md5(old.content) then
+      new.dedup_key := md5(new.content);
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_thoughts_set_dedup_key on thoughts;
+create trigger trg_thoughts_set_dedup_key
+  before insert or update of content on thoughts
+  for each row execute function thoughts_set_dedup_key();
+
+update thoughts set dedup_key = md5(content) where dedup_key is null;
+
+create unique index if not exists idx_thoughts_dedup_key
+  on thoughts (dedup_key, user_id) nulls not distinct;
+
+Explain: "dedup_key defaults to md5(content) — the trigger above sets it for
+you on every insert, so you never compute it by hand. It is kept as its own
+column instead of putting the unique index directly on content_hash so that a
+deliberate second copy — you save the same passage twice on purpose, annotated
+differently — is still possible: give that one row its own dedup_key and it
+will never collide with the auto-derived one."
+
+Now the payoff. Every place in your code that calls .insert() on the thoughts
+table — your index.html save functions, telegram-bot, open-brain-mcp's
+add_thought, weekly-digest's own save of the digest thought — switch it to:
+
+  supabase
+    .from('thoughts')
+    .upsert(payload, { onConflict: 'dedup_key,user_id', ignoreDuplicates: false })
+    .select('id, created_at')
+    .single()
+
+Explain: "With the unique index in place, a bare .insert() of content that
+already exists now raises an error instead of silently duplicating — which is
+correct, but only if you also change the call to .upsert() with onConflict.
+That turns a repeat save into an update of the existing row instead of a
+crash. Walk through each place you call .insert() on thoughts and make this
+change — do not leave any of them on plain insert."
+
+Ask: "Did the SQL run without errors, and did you find and update every place
+your code inserts into thoughts?
+1 — Yes
+2 — Not sure I found them all — let's go through my functions together"
+
 ═══ STEP 1 — ENABLE PGVECTOR ═══
 
 Explain: "pgvector is an extension that teaches your database how to store and compare embeddings. You enable it once with one line of SQL. Supabase includes it for free — you just need to turn it on."
@@ -540,7 +612,7 @@ Run this query in the SQL Editor to see your graph: select count(*) from thought
 
 That number is how many connections your brain has built automatically. Every new thought you save grows the graph further. Ideas that seemed unrelated will surface as connected. Themes you did not know you were exploring will become visible.
 
-Here is what you have built across all 6 levels:
+Here is what you have built across 7 levels so far:
 — A cloud database you own (Supabase)
 — A Progressive Web App deployed to the internet (Vercel)
 — A Telegram bot for capture on the go
@@ -550,7 +622,20 @@ Here is what you have built across all 6 levels:
 — Vector embeddings that make search understand meaning, not just words
 — A thought graph that auto-links related ideas and grows with every capture
 
-This is a production AI knowledge system. The same architecture — embeddings, vector search, auto-linking graph — powers the tools used by researchers, analysts, and AI companies. You built it yourself. It runs on your infrastructure. It belongs to you."
+This is already a production-grade architecture — the same one researchers,
+analysts, and AI companies run. You built it yourself. It runs on your
+infrastructure. It belongs to you.
+
+One thing will still bite you as you keep using it: semantic search alone gets
+noticeably worse the longer a single capture is, because one embedding over a
+6,000-word YouTube transcript is dominated by its overall gist, not the one
+detail buried in the middle you were actually looking for. And meaning-based
+search alone still misses an exact term — an account number, a person's name —
+it never learned to associate with anything. Level 7 fixes both, and also
+catches up every thought you saved before this session on everything that
+came before it. That is the last level.
+
+When you are ready, open the Level 7 prompt."
 
 SPANISH: "Tu cerebro ahora piensa por asociación. Esto es lo que cambió:
 
@@ -563,7 +648,7 @@ Ejecuta esta consulta en el SQL Editor para ver tu grafo: select count(*) from t
 
 Ese número es cuántas conexiones tu cerebro ha construido automáticamente. Cada nuevo pensamiento que guardes hace crecer el grafo. Ideas que parecían no estar relacionadas aparecerán como conectadas. Temas que no sabías que estabas explorando se volverán visibles.
 
-Aquí está lo que has construido en los 6 niveles:
+Aquí está lo que has construido en los 7 niveles hasta ahora:
 — Una base de datos en la nube que tú posees (Supabase)
 — Una Progressive Web App desplegada en internet (Vercel)
 — Un bot de Telegram para captura en movimiento
@@ -573,5 +658,19 @@ Aquí está lo que has construido en los 6 niveles:
 — Embeddings vectoriales que hacen que la búsqueda entienda significado, no solo palabras
 — Un grafo de pensamientos que auto-enlaza ideas relacionadas y crece con cada captura
 
-Este es un sistema de conocimiento de IA de producción. La misma arquitectura — embeddings, búsqueda vectorial, grafo de auto-enlace — alimenta las herramientas usadas por investigadores, analistas y empresas de IA. Lo construiste tú mismo. Corre en tu infraestructura. Te pertenece."
+Esta ya es una arquitectura de nivel de producción — la misma que corren
+investigadores, analistas y empresas de IA. La construiste tú mismo. Corre en
+tu infraestructura. Te pertenece.
+
+Una cosa te va a seguir molestando mientras la uses: la búsqueda semántica sola
+empeora notablemente entre más larga es una sola captura, porque un solo
+embedding sobre una transcripción de YouTube de 6,000 palabras está dominado
+por su idea general, no por el detalle enterrado en medio que en realidad
+buscabas. Y la búsqueda por significado sola también se pierde un término
+exacto — un número de cuenta, el nombre de una persona — que nunca aprendió a
+asociar con nada. El Nivel 7 arregla las dos cosas, y además pone al día cada
+pensamiento que guardaste antes de esta sesión con todo lo anterior. Ese es el
+último nivel.
+
+Cuando estés listo, abre el prompt del Nivel 7."
 ```

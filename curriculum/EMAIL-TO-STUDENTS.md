@@ -1,4 +1,4 @@
-SUBJECT: Build Your Own AI Brain — 7 Levels, Do Them In Order
+SUBJECT: Build Your Own AI Brain — 8 Levels, Do Them In Order
 
 ---
 
@@ -11,7 +11,7 @@ search it. Nobody can take it from you, change what it costs, or shut it down.
 This version includes the benefit of a lot of hard lessons learned so you do not
 have to learn them the hard way.
 
-This build should take you somewhere between 8 and 15 hours spread across 7
+This build should take you somewhere between 9 and 17 hours spread across 8
 levels. When you finish, you will have a framework that is state of the art, LLM
 agnostic, and ready for your next AI build. More importantly, you will be ready
 to begin building this into more advanced AI workflows — agents, scheduled
@@ -53,7 +53,7 @@ Anthropic or anyone else.
 
 HOW TO START:
 
-Attached are 8 files. Open Level-0 first. Paste it into Claude. Claude will walk
+Attached are 9 files. Open Level-0 first. Paste it into Claude. Claude will walk
 you through everything. When Level-0 is done, open Level-1. Do them in order —
 each level requires the previous one to be working, or the next one breaks.
 
@@ -92,7 +92,7 @@ cambiar lo que cuesta, ni cerrarlo. Esta versión incluye el beneficio de muchas
 lecciones aprendidas a la fuerza para que tú no tengas que aprenderlas de la
 misma manera.
 
-Esta construcción debería tomarte entre 8 y 15 horas distribuidas en 7 niveles.
+Esta construcción debería tomarte entre 9 y 17 horas distribuidas en 8 niveles.
 Cuando termines, tendrás un framework de vanguardia, agnóstico de LLM, y listo
 para tu próxima construcción de IA. Más importante aún, estarás listo para
 desarrollarlo en flujos de trabajo de IA más avanzados — agentes, tareas
@@ -135,7 +135,7 @@ atrapado con Anthropic ni con nadie.
 
 CÓMO EMPEZAR:
 
-Se adjuntan 8 archivos. Abre primero el Nivel-0. Pégalo en Claude. Claude te
+Se adjuntan 9 archivos. Abre primero el Nivel-0. Pégalo en Claude. Claude te
 guiará a través de todo. Cuando el Nivel-0 esté completo, abre el Nivel-1.
 Hazlos en orden — cada nivel requiere que el anterior esté funcionando o el
 siguiente se rompe.
@@ -165,7 +165,7 @@ No estoy disponible para preguntas. Claude es tu entrenador. Buena suerte.
 
 ---
 
-ATTACHMENTS (8 files):
+ATTACHMENTS (9 files):
 Level-0-Setup.md
 Level-1-Build.md
 Level-2-Feed.md
@@ -173,4 +173,5 @@ Level-3-Telegram.md
 Level-4-MCP.md
 Level-5-Agents.md
 Level-6-Connect.md
-README.md   (the index — lists all seven levels and links to the express version)
+Level-7-Retrieve.md
+README.md   (the index — lists all eight levels and links to the express version)
