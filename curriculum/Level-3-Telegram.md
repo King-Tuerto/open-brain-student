@@ -307,7 +307,8 @@ server then. Now you do. Watch what that unlocks."
 Two more edge functions, deployed exactly like the Telegram bot:
 
   capture-url — takes a link, fetches the page on the server where CORS does not
-  apply, strips it down to readable text, summarises it, saves it.
+  apply, strips it down to readable text, saves it. (Summarising comes later —
+  see the note below on why this level saves the raw text instead.)
 
   capture-youtube — this one is more interesting. YouTube serves a stripped-down
   page with no captions when the request comes from a datacentre, which is what
@@ -367,11 +368,13 @@ write with the service-role admin client, same as Express does. That part has
 no dependency problem — only the two imports above do.
 
 Note: those files also call Express's callLLM helper to summarise, which needs
-an OPENROUTER_API_KEY — a key this course never sets up at all, on any level.
-This course's own AI calls use ANTHROPIC_API_KEY instead, and the student does
-not get one until Level 5. Adapt for that too: for now, have them save the
-fetched text without summarising it, and let Level 5's enrichment agent handle
-the summarising later. Explain that trade rather than hiding it.
+an OPENROUTER_API_KEY — a key this course does not set up until Level 6, and
+even then only for embeddings, not the chat completions endpoint this summary
+call needs. This course's own AI calls use ANTHROPIC_API_KEY instead, and the
+student does not get one until Level 5. Adapt for that too: for now, have
+them save the fetched text without summarising it, and let Level 5's
+enrichment agent handle the summarising later. Explain that trade rather
+than hiding it.
 
 Deploy both:
   npx supabase functions deploy capture-url
