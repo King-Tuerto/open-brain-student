@@ -492,32 +492,28 @@ you just read: open-brain-mcp uses your service role key, not a real sign-in,
 so nothing tells it whose thoughts it is searching unless you tell it
 yourself. It already has one identity of sorts — MCP_ACCESS_KEY from Level 4 —
 but that only proves the CALLER (Claude Desktop) is allowed to talk to your
-server at all. It says nothing about whose data to search. We add a second,
-separate value for that."
+server at all. It says nothing about whose data to search. Good news: you
+already have exactly the value we need. OWNER_USER_ID is the secret you set
+back in Level 3 so your Telegram bot could stamp your own UID on everything it
+saved — the same UID, same purpose, applies here."
 
-Have them:
-1. Go to Supabase → Authentication → Users
-2. Find their own account in the list, and copy the value shown under UID
-3. Go to Supabase → Edge Functions → Secrets
-4. Add a new secret: Name: MCP_USER_ID   Value: the UID they just copied
-5. Save it
-
-Ask: "Do you have MCP_USER_ID in your secrets, set to your own UID?
-1 — Yes
+Ask: "Go to Supabase → Edge Functions → Secrets and confirm OWNER_USER_ID is
+still listed there, set to your own UID.
+1 — Yes, it's there
 2 — No — I'll take a screenshot"
 
 Explain: "Claude Desktop's search_brain tool calls this RPC already, from Level
 6. It needs three changes now: send the query text along with the embedding
-(the old call only sent the embedding), send MCP_USER_ID as p_user_id so the
+(the old call only sent the embedding), send OWNER_USER_ID as p_user_id so the
 database knows whose thoughts to search, and show which chunk actually matched
 when the answer came from inside a long document rather than from a whole
 thought."
 
 Walk the student through updating the search_thoughts tool handler in
 open-brain-mcp to:
-1. Read MCP_USER_ID from Deno.env
+1. Read OWNER_USER_ID from Deno.env
 2. Call the search_thoughts RPC with query_text (the raw search string),
-   p_user_id (Deno.env.get('MCP_USER_ID')), and query_embedding (still
+   p_user_id (Deno.env.get('OWNER_USER_ID')), and query_embedding (still
    generated the same way as before)
 3. When formatting each result for Claude to read, if matched_chunk is
    present, show that chunk's text as the reason this thought matched, with a

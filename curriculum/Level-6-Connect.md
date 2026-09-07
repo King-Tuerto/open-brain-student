@@ -412,11 +412,15 @@ create table if not exists thought_links (
   id uuid default gen_random_uuid() primary key,
   source_thought_id uuid not null references thoughts(id) on delete cascade,
   target_thought_id uuid not null references thoughts(id) on delete cascade,
-  user_id uuid references auth.users(id) on delete cascade,
   similarity_score float not null,
   link_type text not null default 'semantic',
   created_at timestamptz default now()
 );
+
+-- Upgrade-safe: if thought_links already exists from an earlier session, the
+-- CREATE TABLE above is a no-op and never adds a column. This runs as its own
+-- statement every time so user_id always ends up on the table either way.
+alter table thought_links add column if not exists user_id uuid references auth.users(id) on delete cascade;
 
 -- Prevent exact duplicate links (A→B)
 create unique index if not exists idx_thought_links_pair
@@ -437,10 +441,17 @@ create index if not exists idx_thought_links_target
 create index if not exists idx_thought_links_user
   on thought_links(user_id);
 
--- No self-links
-alter table thought_links
-  add constraint no_self_links
-  check (source_thought_id != target_thought_id);
+-- No self-links (guarded so re-running this block doesn't fail on "already exists")
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'no_self_links'
+  ) then
+    alter table thought_links
+      add constraint no_self_links
+      check (source_thought_id != target_thought_id);
+  end if;
+end $$;
 
 -- Same rule as every other table in your database since Level 2: only the
 -- person who owns a row can see it, change it, or delete it.
@@ -463,7 +474,11 @@ create policy "own_links_delete" on thought_links
 
 Explain: "The canonical index using LEAST/GREATEST is the key trick. It sorts the two UUIDs alphabetically and indexes them in that order. So whether the link was created as A→B or B→A, the index sees the same pair and blocks the duplicate. This was tested in production — without it, you get double the edges and confusing query results.
 
-One more thing, easy to miss because nothing breaks without it: until this exact statement, thought_links had no row-level security at all — it has been exactly as open as thoughts was before Level 2 closed that hole, readable and writable by anyone with your public key. We close it here the same way, for the same reason. Your enrichment function writes to it with the service role key, which skips RLS entirely, so nothing about how linking works changes today. This only stops a stranger with your public key from reading or tampering with your graph directly."
+One more thing, easy to miss because nothing breaks without it: until this exact statement, thought_links had no row-level security at all — it has been exactly as open as thoughts was before Level 2 closed that hole, readable and writable by anyone with your public key. We close it here the same way, for the same reason. Your enrichment function writes to it with the service role key, which skips RLS entirely, so nothing about how linking works changes today. This only stops a stranger with your public key from reading or tampering with your graph directly.
+
+If you already had thought_links rows from before user_id existed on this table — returning to this level after a break — those rows have no owner and will be invisible from now on. Same fix as Level 2: run
+  update thought_links set user_id = (select id from auth.users limit 1) where user_id is null;
+and they're back."
 
 Ask: "Did the SQL run without errors?
 1 — Yes
