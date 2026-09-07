@@ -112,6 +112,26 @@ Ask: "Do you see TELEGRAM_BOT_TOKEN in your secrets list?
 1 — Yes
 2 — No — I'll take a screenshot"
 
+═══ STEP 3b — GIVE THE BOT YOUR USER ID ═══
+
+Explain: "One more secret. Since Level 2, every row in your thoughts table has to
+belong to somebody — that is what the login screen and the security rule you
+added are for. Your bot is about to save thoughts on your behalf, so it needs
+to know whose account those thoughts belong to."
+
+Instructions:
+1. Go to your Supabase project dashboard
+2. Go to Authentication → Users
+3. Find your own account in the list, and copy the value shown under UID
+4. Go to Edge Functions → Secrets → Add new secret
+5. Name: OWNER_USER_ID
+6. Value: paste the UID you just copied
+7. Click Save
+
+Ask: "Do you see OWNER_USER_ID in your secrets list?
+1 — Yes
+2 — No — I'll take a screenshot"
+
 ═══ STEP 4 — INSTALL SUPABASE CLI ═══
 
 Explain: "So far you have only used Supabase through a browser. Now we need a command-line tool to deploy code to Supabase's servers. This is called the Supabase CLI. You do not have to install it — a command called npx will fetch it the moment you use it, and keep it for next time."
@@ -206,8 +226,14 @@ The function should:
 - Otherwise: save the message text as a new thought in the thoughts table
 - Respond to Telegram with a confirmation or search results
 - Use Deno's built-in fetch
-- Read TELEGRAM_BOT_TOKEN and SUPABASE_URL from Deno.env
+- Read TELEGRAM_BOT_TOKEN, OWNER_USER_ID, and SUPABASE_URL from Deno.env
 - Use SUPABASE_SERVICE_ROLE_KEY (auto-available in edge functions) to access the DB
+- Set user_id: OWNER_USER_ID on the insert, and filter every query (search,
+  recent) by .eq('user_id', OWNER_USER_ID) too — the service role key skips
+  the security rule from Level 2 entirely, so nothing else will fill this in
+  for you. Skip this and the insert still succeeds, silently: the row saves
+  with no owner at all and is invisible to your own app from that moment on,
+  since the app can only ever see rows that belong to whoever is logged in.
 - Include CORS headers
 - Handle errors gracefully and always return a 200 to Telegram (so Telegram does not retry)
 

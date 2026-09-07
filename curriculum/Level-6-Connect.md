@@ -412,6 +412,7 @@ create table if not exists thought_links (
   id uuid default gen_random_uuid() primary key,
   source_thought_id uuid not null references thoughts(id) on delete cascade,
   target_thought_id uuid not null references thoughts(id) on delete cascade,
+  user_id uuid references auth.users(id) on delete cascade,
   similarity_score float not null,
   link_type text not null default 'semantic',
   created_at timestamptz default now()
@@ -433,13 +434,36 @@ create index if not exists idx_thought_links_source
   on thought_links(source_thought_id);
 create index if not exists idx_thought_links_target
   on thought_links(target_thought_id);
+create index if not exists idx_thought_links_user
+  on thought_links(user_id);
 
 -- No self-links
 alter table thought_links
   add constraint no_self_links
   check (source_thought_id != target_thought_id);
 
-Explain: "The canonical index using LEAST/GREATEST is the key trick. It sorts the two UUIDs alphabetically and indexes them in that order. So whether the link was created as A→B or B→A, the index sees the same pair and blocks the duplicate. This was tested in production — without it, you get double the edges and confusing query results."
+-- Same rule as every other table in your database since Level 2: only the
+-- person who owns a row can see it, change it, or delete it.
+alter table thought_links enable row level security;
+
+drop policy if exists "own_links_select" on thought_links;
+create policy "own_links_select" on thought_links
+  for select to authenticated
+  using (auth.uid() = user_id);
+
+drop policy if exists "own_links_insert" on thought_links;
+create policy "own_links_insert" on thought_links
+  for insert to authenticated
+  with check (auth.uid() = user_id);
+
+drop policy if exists "own_links_delete" on thought_links;
+create policy "own_links_delete" on thought_links
+  for delete to authenticated
+  using (auth.uid() = user_id);
+
+Explain: "The canonical index using LEAST/GREATEST is the key trick. It sorts the two UUIDs alphabetically and indexes them in that order. So whether the link was created as A→B or B→A, the index sees the same pair and blocks the duplicate. This was tested in production — without it, you get double the edges and confusing query results.
+
+One more thing, easy to miss because nothing breaks without it: until this exact statement, thought_links had no row-level security at all — it has been exactly as open as thoughts was before Level 2 closed that hole, readable and writable by anyone with your public key. We close it here the same way, for the same reason. Your enrichment function writes to it with the service role key, which skips RLS entirely, so nothing about how linking works changes today. This only stops a stranger with your public key from reading or tampering with your graph directly."
 
 Ask: "Did the SQL run without errors?
 1 — Yes
@@ -510,6 +534,7 @@ if (embedding) {
     const links = neighbors.map((n) => ({
       source_thought_id: thoughtId,
       target_thought_id: n.target_id,
+      user_id: userId,
       similarity_score: n.similarity,
       link_type: 'semantic',
     }));
@@ -520,7 +545,9 @@ if (embedding) {
   }
 }
 
-Explain: "The if (embedding) guard means: if the embedding generation failed for any reason, skip linking instead of crashing. ignoreDuplicates means if a link already exists, just skip it — no errors, no overwrites. This function is designed to be safe. It never crashes, it never creates duplicates, and it only creates links when there is real similarity."
+Explain: "The if (embedding) guard means: if the embedding generation failed for any reason, skip linking instead of crashing. ignoreDuplicates means if a link already exists, just skip it — no errors, no overwrites. This function is designed to be safe. It never crashes, it never creates duplicates, and it only creates links when there is real similarity.
+
+user_id: userId matters for a second reason beyond bookkeeping — thought_links now has row-level security scoped to auth.uid() = user_id, same as thoughts. Leave it out and this insert, run with the service role key, would still succeed (that key skips RLS), but every link would be permanently unowned and invisible the moment anything ever reads this table as a real logged-in user instead of as the server."
 
 Have them redeploy: npx supabase functions deploy enrich-thought --project-ref THEIR_PROJECT_REF
 

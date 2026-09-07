@@ -530,6 +530,60 @@ Ask: "Did the deployment succeed?
 1 — Yes
 2 — Error — I'll paste what I see"
 
+═══ STEP 5b — WIRE YOUR OWN APP'S SEARCH TAB TO THE SAME SEARCH ═══
+
+Explain: "One more thing before this level is done, and it is easy to have
+missed. Back in Level 2 you built a Search tab, and it has not been touched
+since — it still runs a plain keyword match (ilike) straight from the
+browser against the thoughts table. Everything you built today — chunking,
+hybrid ranking, the per-document cap — only reaches Claude Desktop, through
+the MCP server you just updated. Your own app's search box has quietly been
+left behind since Level 2. Let's bring it up to the same level."
+
+Explain further: "search_thoughts needs an embedding of the search phrase,
+and generating that needs your OpenRouter key — a secret that can never sit
+inside a web page where anyone could read it. So the browser cannot call
+search_thoughts directly, the same reason it has never been allowed to call
+generate-embedding directly. It has to ask a server function to do it."
+
+Generate a complete Supabase Edge Function called search-brain:
+
+The function should:
+- Accept POST requests with { query: string, limit?: number }
+- Identify the caller from their OWN login token — the anon-key client plus
+  the incoming Authorization header, the same pattern used anywhere a
+  function must know who is asking. Never trust a user id sent in the
+  request body; a browser call could put anything there.
+- Call generate-embedding with the query text to get its embedding
+- Call the search_thoughts RPC with query_text (the raw query), p_user_id
+  set to the CALLER's own id from their login token, and query_embedding
+- If the embedding call fails for any reason, still call search_thoughts
+  with query_embedding left null — a failed embedding should fall back to
+  keyword-only search, not an error shown to the user
+- Return the results, capped at limit (default 20, max 50)
+- Include CORS headers
+
+Have the student:
+1. Create supabase/functions/search-brain/index.ts with the generated code
+2. Deploy: npx supabase functions deploy search-brain --project-ref THEIR_PROJECT_REF
+
+Ask: "Did the deployment succeed?
+1 — Yes
+2 — Error — I'll paste what I see"
+
+Then update the Search tab in index.html: instead of querying the thoughts
+table directly with ilike, have it call this new search-brain function (the
+same way the app already sends its own login token to any other function it
+calls) and display matched_chunk under a result when one is present, with a
+short note like "(from partway through a longer capture)" — the same thing
+you just added to the MCP server's results in Step 5.
+
+Ask: "Try the buried-detail and exact-term searches from Step 7, but from
+inside your own app's Search tab this time, not Claude Desktop. Does your
+app find them too now?
+1 — Yes
+2 — No — I'll paste what I see"
+
 ═══ STEP 6 — BUILD THE BACKFILL ═══
 
 Explain: "Chunking only happens automatically for thoughts saved from now on.
