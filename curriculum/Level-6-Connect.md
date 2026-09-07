@@ -452,6 +452,7 @@ Have them run this in the SQL Editor:
 create or replace function find_links_for_thought(
   source_id uuid,
   source_embedding vector(1536),
+  p_user_id uuid,
   match_threshold float default 0.5,
   match_count int default 5
 )
@@ -469,6 +470,7 @@ begin
       (1 - (t.embedding <=> source_embedding))::float as similarity
     from thoughts t
     where t.id != source_id
+      and t.user_id = p_user_id
       and t.embedding is not null
       and (1 - (t.embedding <=> source_embedding)) > match_threshold
     order by t.embedding <=> source_embedding
@@ -476,7 +478,9 @@ begin
 end;
 $$;
 
-Explain: "This function is marked VOLATILE instead of STABLE. That is important — it runs right after you insert a new thought, and a STABLE function might read an old snapshot of the database that does not include the thought you just inserted. VOLATILE means it always reads the latest data."
+Explain: "This function is marked VOLATILE instead of STABLE. That is important — it runs right after you insert a new thought, and a STABLE function might read an old snapshot of the database that does not include the thought you just inserted. VOLATILE means it always reads the latest data.
+
+One more thing worth understanding, not just pasting: p_user_id. This function runs inside enrich-thought, which calls it using your service role key — the master key from Level 4 that skips every row-level-security rule you built in Level 2. RLS is never even in the room for this call. Without a filter here, your brain would find neighbor thoughts across every signed-up user in this project, not just yours. Today that is invisible because you are the only user who has ever signed up — but nothing enforces that staying true, and this fix costs nothing: the thought's own user_id is already sitting in the webhook payload enrich-thought received, the same value already used for call-llm's userId. Level 7 explains this exact pattern in full when it fixes the same gap in search_thoughts; this is the first place it shows up."
 
 Ask: "Did the SQL run without errors?
 1 — Yes
@@ -488,11 +492,14 @@ Explain: "Now we connect everything. After a thought is saved and its embedding 
 
 Walk the student through adding this to the end of their enrich-thought function, after the embedding is saved:
 
-// Auto-link: find and save neighbors
+// Auto-link: find and save neighbors — scoped to the same user as the
+// thought that was just saved, using the user_id already pulled from this
+// webhook payload for the enrichment call above.
 if (embedding) {
   const { data: neighbors } = await supabase.rpc('find_links_for_thought', {
     source_id: thoughtId,
     source_embedding: embedding,
+    p_user_id: userId,
     match_threshold: 0.5,
     match_count: 5,
   });

@@ -237,6 +237,66 @@ text and its embedding, searches by meaning and by keyword at the same time,
 fuses the two rankings, and also checks a document's chunks — not just its
 own whole-content point — for the best match."
 
+═══ WHY THIS FUNCTION ALSO NEEDS TO KNOW WHO IS ASKING — EXPLAIN CAREFULLY ═══
+
+ENGLISH: "One more thing before you touch any code: the new version below takes
+a parameter called p_user_id, and unlike match_threshold or match_count, it has
+no default — you must pass it every single time. Here is why, and it is worth
+understanding all the way through rather than just pasting past it.
+
+Back in Level 2 you set up row-level security so the database only ever hands a
+person their own thoughts. That protects your Progressive Web App perfectly: it
+signs in as a real person, and Supabase enforces auth.uid() = user_id
+automatically, on every query, with zero extra code from you.
+
+But open-brain-mcp — the function that actually calls search_thoughts — does
+not sign in as a person. It uses your service role key, the same master key
+from Level 4 that skips every security rule you have ever written. Row-level
+security was never protecting this path, and it could not have been: RLS is
+enforced against auth.uid(), and the service role has no auth.uid() at all. It
+is not a user. It is the database's own front-door key. The visible CTE in
+Level 6's search_thoughts selected from thoughts with nothing narrowing it
+down — meaning it was already handing back every thought in your project on
+every search, not only yours. You never noticed, because you are the only
+person who has ever signed up. Nothing enforces that staying true forever, and
+nothing should have to, for this to be safe.
+
+The fix is not more security rules — RLS already did its job perfectly for the
+one caller it can actually see. The fix is that this particular caller has to
+do its own filtering, right in the query, because it is standing outside the
+wall RLS built. That is what p_user_id is for, and it is why it is required
+rather than optional."
+
+SPANISH: "Una cosa más antes de tocar el código: la nueva versión de abajo
+recibe un parámetro llamado p_user_id, y a diferencia de match_threshold o
+match_count, no tiene valor por defecto — tienes que pasarlo siempre, cada vez.
+Aquí está el porqué, y vale la pena entenderlo completo en lugar de solo
+pegarlo sin más.
+
+En el Nivel 2 configuraste seguridad a nivel de fila para que la base de datos
+solo le entregue a una persona sus propios pensamientos. Eso protege tu
+Progressive Web App perfectamente: inicia sesión como una persona real, y
+Supabase aplica auth.uid() = user_id automáticamente, en cada consulta, sin
+código extra de tu parte.
+
+Pero open-brain-mcp — la función que en realidad llama a search_thoughts — no
+inicia sesión como una persona. Usa tu llave de rol de servicio, la misma
+llave maestra del Nivel 4 que salta cualquier regla de seguridad que hayas
+escrito. La seguridad a nivel de fila nunca protegió este camino, y no podía
+hacerlo: RLS se aplica contra auth.uid(), y el rol de servicio no tiene ningún
+auth.uid(). No es un usuario. Es la llave de la puerta principal de la base de
+datos. El CTE visible del search_thoughts del Nivel 6 seleccionaba de thoughts
+sin nada que lo acotara — es decir, ya estaba devolviendo cada pensamiento del
+proyecto en cada búsqueda, no solo los tuyos. Nunca lo notaste porque eres la
+única persona que se ha registrado. Nada obliga a que eso siga siendo cierto
+para siempre, y nada debería tener que obligarlo, para que esto sea seguro.
+
+La solución no son más reglas de seguridad — RLS ya hizo su trabajo
+perfectamente para el único llamador que puede ver. La solución es que este
+llamador en particular tiene que hacer su propio filtrado, dentro de la
+consulta, porque está parado fuera de la pared que construyó RLS. Para eso es
+p_user_id, y por eso es obligatorio y no opcional."
+
 ═══ WHY THIS ONE IS DIFFERENT FROM EVERY OTHER CHANGE YOU HAVE MADE — EXPLAIN CAREFULLY ═══
 
 "Every other time in this course you added a column or a table, you used `if
@@ -245,10 +305,11 @@ that way. Postgres tells functions apart by their FULL signature — name AND
 parameter list together, not just the name.
 
 Your current search_thoughts takes three parameters: (query_embedding,
-match_threshold, match_count). The version we are about to write takes five,
-in a different order, starting with query_text. If we just wrote `create or
-replace function search_thoughts(query_text, query_embedding, ...)`, Postgres
-would not recognize that as 'the same function with a new body' — the
+match_threshold, match_count). The version we are about to write takes six,
+in a different order, starting with query_text and p_user_id — the value you
+just read about above — right behind it. If we just wrote `create or replace
+function search_thoughts(query_text, p_user_id, query_embedding, ...)`,
+Postgres would not recognize that as 'the same function with a new body' — the
 parameter list does not match. It would create a SECOND function that happens
 to share a name. You would then have two overloads of search_thoughts sitting
 in your database at once, and the next time anything calls it, Postgres
@@ -277,6 +338,7 @@ $drop$;
 
 create function search_thoughts(
   query_text                text,
+  p_user_id                 uuid,
   query_embedding            vector(1536) default null,
   match_threshold            float default 0.3,
   match_count                int   default 10,
@@ -298,6 +360,7 @@ language sql stable as $$
     select t.id, t.content, t.created_at, t.embedding, t.content_tsv,
            coalesce(t.metadata->>'url', t.metadata->>'video_id') as source_document
     from thoughts t
+    where t.user_id = p_user_id
   ),
   document_hits as (
     select v.id as thought_id, 1 - (v.embedding <=> query_embedding) as sim,
@@ -421,19 +484,41 @@ Ask: "Does that show exactly one row?
 1 — Yes, one row
 2 — Two rows, or none — let's fix that before continuing"
 
-═══ STEP 5 — UPDATE THE MCP SERVER ═══
+═══ STEP 5 — GIVE THE MCP SERVER AN IDENTITY, THEN UPDATE IT ═══
+
+Explain: "search_thoughts now requires p_user_id on every call, for the reason
+you just read: open-brain-mcp uses your service role key, not a real sign-in,
+so nothing tells it whose thoughts it is searching unless you tell it
+yourself. It already has one identity of sorts — MCP_ACCESS_KEY from Level 4 —
+but that only proves the CALLER (Claude Desktop) is allowed to talk to your
+server at all. It says nothing about whose data to search. We add a second,
+separate value for that."
+
+Have them:
+1. Go to Supabase → Authentication → Users
+2. Find their own account in the list, and copy the value shown under UID
+3. Go to Supabase → Edge Functions → Secrets
+4. Add a new secret: Name: MCP_USER_ID   Value: the UID they just copied
+5. Save it
+
+Ask: "Do you have MCP_USER_ID in your secrets, set to your own UID?
+1 — Yes
+2 — No — I'll take a screenshot"
 
 Explain: "Claude Desktop's search_brain tool calls this RPC already, from Level
-6. It needs two small changes: send the query text along with the embedding
-(the old call only sent the embedding), and show which chunk actually matched
+6. It needs three changes now: send the query text along with the embedding
+(the old call only sent the embedding), send MCP_USER_ID as p_user_id so the
+database knows whose thoughts to search, and show which chunk actually matched
 when the answer came from inside a long document rather than from a whole
 thought."
 
 Walk the student through updating the search_thoughts tool handler in
 open-brain-mcp to:
-1. Call the search_thoughts RPC with both query_text (the raw search string)
-   and query_embedding (still generated the same way as before)
-2. When formatting each result for Claude to read, if matched_chunk is
+1. Read MCP_USER_ID from Deno.env
+2. Call the search_thoughts RPC with query_text (the raw search string),
+   p_user_id (Deno.env.get('MCP_USER_ID')), and query_embedding (still
+   generated the same way as before)
+3. When formatting each result for Claude to read, if matched_chunk is
    present, show that chunk's text as the reason this thought matched, with a
    note like "(from partway through a longer capture)" — instead of only
    showing the thought's own short content

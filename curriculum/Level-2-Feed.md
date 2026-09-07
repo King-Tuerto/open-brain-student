@@ -220,11 +220,26 @@ create table if not exists thought_sources (
 alter table thought_sources enable row level security;
 
 drop policy if exists "own_sources" on thought_sources;
+-- auth.uid() = user_id only checks the source row itself. Without also
+-- confirming the thought it points at is yours, anyone who learned another
+-- student's thought_id could staple a source row onto it.
 create policy "own_sources" on thought_sources
   for all
   to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  using (
+    auth.uid() = user_id
+    and exists (
+      select 1 from thoughts t
+      where t.id = thought_sources.thought_id and t.user_id = auth.uid()
+    )
+  )
+  with check (
+    auth.uid() = user_id
+    and exists (
+      select 1 from thoughts t
+      where t.id = thought_sources.thought_id and t.user_id = auth.uid()
+    )
+  );
 
 Explain: "One thing here is different from how Express (the pre-built version
 of this same project) does it. Express only ever writes thought_sources from
@@ -232,7 +247,13 @@ its own server, so it locks that table down to server-only access. Your app is
 still saving straight from the browser at this point in the course — Level 3
 is where you get a server — so this table needs its own row-level-security
 rule, own_sources, scoped to the signed-in user the same way own_thoughts is.
-Once your captures move server-side later, this still works exactly the same."
+Once your captures move server-side later, this still works exactly the same.
+
+Notice own_sources checks two things, not one: that the source row itself
+belongs to you, AND that the thought it is attached to also belongs to you.
+The first check alone would let someone attach a source row to a thought_id
+they merely guessed or saw elsewhere, as long as they wrote their own user_id
+on the source row — the EXISTS clause closes that."
 
 Then have them turn off email confirmation so signing up does not require
 waiting for an email mid-build:
