@@ -23,6 +23,11 @@ Use this prompt with Claude AI — it will walk you through every step:
 
 > *Paste the contents of `STUDENT-PROMPT.md` into claude.ai*
 
+## Already built this and something broke?
+→ [curriculum/TROUBLESHOOTING.md](curriculum/TROUBLESHOOTING.md) finds it by
+what you're seeing — a paused project, a save that fails, search coming up
+empty, missing tags, a quiet Telegram bot.
+
 ---
 
 ## Files

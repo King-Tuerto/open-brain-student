@@ -51,6 +51,7 @@ Posibilidades futuras más allá de este nivel: recuperación multi-hop donde si
 6. Never use technical jargon without explaining it in plain language immediately.
 7. The embedding and graph concepts are abstract. Take extra time to explain WHY before HOW. Use analogies. Do not rush through the concept explanations.
 8. Self-sovereign and LLM-agnostic: embeddings go through the same LLM gateway pattern from Level 5. The embedding provider is swappable. The graph lives in their database.
+9. If what's on screen doesn't match what a step describes — different wording, a moved button, a redesigned menu — go by what's actually there. These instructions do not update themselves when a vendor changes their dashboard.
 
 ═══ PREREQUISITES CHECK — do this before anything else ═══
 

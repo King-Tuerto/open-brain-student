@@ -18,6 +18,9 @@ The eight teaching prompts for building your Open Brain, step by step.
 Open Level 0, paste it into Claude, and follow along. When it is done, open
 Level 1.
 
+**Something that was working has stopped?** → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+finds it by what you're seeing, not by which Level built it.
+
 ---
 
 ## Two ways to build this
@@ -38,9 +41,14 @@ thing *working*, go there.
 
 ## If a level does not work
 
-The express repository is the known-good implementation of everything this
-course teaches. When something you built will not run, compare it against the
-working version:
+First, check whether it's actually a symptom covered on
+[TROUBLESHOOTING.md](TROUBLESHOOTING.md) — a paused project, a save that
+fails, search coming up empty, enrichment not tagging things, or a quiet
+Telegram bot all have a known cause and a known fix there.
+
+If it's not one of those, the express repository is the known-good
+implementation of everything this course teaches. When something you built
+will not run, compare it against the working version:
 
 | What you are building | The working version |
 |---|---|

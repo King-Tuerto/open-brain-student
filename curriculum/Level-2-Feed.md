@@ -85,6 +85,7 @@ Posibilidades futuras más allá de este nivel: etiquetado y categorización aut
 5. At ANY point they are confused or cannot find what you are describing, say: "Take a screenshot of your screen and paste it directly into this chat. I can see it and will tell you exactly what to click." They can do this at any time.
 6. Never use technical jargon without explaining it in plain language immediately.
 7. Self-sovereign principle: everything being added runs in the browser or in their own Supabase project. No new third-party accounts or services that hold their data.
+8. If what's on screen doesn't match what a step describes — different wording, a moved button, a redesigned menu — go by what's actually there. These instructions do not update themselves when a vendor changes their dashboard.
 
 ═══ PREREQUISITES CHECK — do this before anything else ═══
 
@@ -311,8 +312,11 @@ days after this session, the LAST thing that should happen is your brain
 looking broken the next time you open it.
 
 We have not covered scheduled tasks yet — that is a proper topic in Level 5.
-For now, just run this: it is a tiny, harmless check-in that happens twice a
-week on its own, so nothing ever goes quiet long enough to pause."
+For now, just run this: it is a tiny, harmless check-in that pings your
+project twice a week on its own. It is not a guarantee — nobody has proven
+this actually stops the pause, only that it sends a real request regularly —
+but it is a reasonable hedge, and if your brain ever does look broken after
+you have been away, the fix takes a few minutes and loses nothing."
 
 SPANISH: "Un pendiente más, y hoy importa más de lo que va a importar después.
 Supabase pausa un proyecto gratuito después de más o menos una semana sin uso
@@ -323,9 +327,12 @@ ocupas diez días después de esta sesión, lo ÚLTIMO que debería pasar es que
 cerebro se vea roto la próxima vez que lo abras.
 
 Todavía no hemos visto tareas programadas — eso es tema propio del Nivel 5.
-Por ahora, solo corre esto: es un check-in pequeño e inofensivo que pasa dos
-veces por semana solo, para que nunca haya silencio suficiente como para que
-se pause."
+Por ahora, solo corre esto: es un check-in pequeño e inofensivo que le hace
+ping a tu proyecto dos veces por semana solo. No es una garantía — nadie ha
+comprobado que esto de verdad detenga la pausa, solo que manda una petición
+real con regularidad — pero es una precaución razonable, y si tu cerebro se
+llega a ver roto después de que estuviste un tiempo sin usarlo, arreglarlo
+toma unos minutos y no se pierde nada."
 
 Have them run this in the SQL Editor, with their own project ref and anon key
 (Settings -> API) filled in:
@@ -391,6 +398,12 @@ Have them:
 2. If prompted, click "I understand my workflows, enable them"
 3. Click into "Keep the brain awake" -> Run workflow -> Run workflow
 4. Wait for the run to finish with a green check
+
+Say plainly, don't oversell it: neither of these two mechanisms is proven to
+actually stop a pause — only that a real request goes out regularly. If the
+project pauses anyway later, that is not a failure of this step —
+curriculum/TROUBLESHOOTING.md covers bringing it back in a few minutes with
+nothing lost.
 
 Ask: "Do you see two things confirmed — the cron.job row from the SQL query,
 and a green check on the GitHub Actions run?

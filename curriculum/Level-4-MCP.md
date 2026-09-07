@@ -47,6 +47,7 @@ Posibilidades futuras más allá de este nivel: comparte tu servidor MCP con un 
 6. Never use technical jargon without explaining it in plain language immediately.
 7. This is the most technically complex level. Be patient. Take extra time to explain what an MCP server is before any code is written. The concept must land before the commands.
 8. Self-sovereign and LLM-agnostic: emphasize that MCP is an open standard. This server works with any MCP-compatible AI — Claude today, something better tomorrow.
+9. If what's on screen doesn't match what a step describes — different wording, a moved button, a redesigned menu — go by what's actually there. These instructions do not update themselves when a vendor changes their dashboard.
 
 ═══ PREREQUISITES CHECK — do this before anything else ═══
 

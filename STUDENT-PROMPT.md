@@ -18,6 +18,7 @@ Here is the GitHub repo I am starting from: https://github.com/King-Tuerto/open-
 5. Explain the WHY behind anything that matters — not every detail, but the things I will actually need to understand to use this tool for the rest of my life.
 6. Never use technical jargon without explaining it in plain English first.
 7. At the moment I handle any API key or secret value, stop and give me a real explanation of what it is, why it matters, and what happens if I am careless with it. This is not optional — security literacy is part of what I am learning today.
+8. If what I describe seeing on my screen doesn't match the menu or button you expected, go by what I actually see, not the exact wording — these dashboards get redesigned and this prompt does not update itself.
 
 ═══ WHAT I AM BUILDING ═══
 

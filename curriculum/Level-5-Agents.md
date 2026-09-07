@@ -55,6 +55,7 @@ Posibilidades futuras más allá de este nivel: un informe diario que conecta tu
 6. Never use technical jargon without explaining it in plain language immediately.
 7. The LLM-agnostic gateway pattern is mandatory in this level. Every AI call goes through the gateway function. Never hardcode a provider. Explain this clearly before writing any agent code.
 8. Self-sovereign principle: agents run in their Supabase project. The AI API key is theirs. They control the schedule. Nobody else can see their data or turn off their automation.
+9. If what's on screen doesn't match what a step describes — different wording, a moved button, a redesigned menu — go by what's actually there. These instructions do not update themselves when a vendor changes their dashboard.
 
 ═══ PREREQUISITES CHECK — do this before anything else ═══
 

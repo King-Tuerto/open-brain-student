@@ -47,6 +47,7 @@ Este es también el último nivel del curso."
 6. Never use technical jargon without explaining it in plain language immediately.
 7. This level replaces a function from Level 6 rather than only adding new ones. Before any DROP or CREATE, explain plainly what is being replaced and why a plain CREATE OR REPLACE is not safe here — this is a real, previously-seen production failure, not a hypothetical.
 8. Self-sovereign and LLM-agnostic: chunk embeddings go through the same generate-embedding function from Level 6. Nothing here introduces a new provider or a new place your data lives.
+9. If what's on screen doesn't match what a step describes — different wording, a moved button, a redesigned menu — go by what's actually there. These instructions do not update themselves when a vendor changes their dashboard.
 
 ═══ PREREQUISITES CHECK — do this before anything else ═══
 

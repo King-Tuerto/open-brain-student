@@ -43,6 +43,7 @@ Posibilidades futuras más allá de este nivel: pídele a tu bot un resumen de t
 6. Never use technical jargon without explaining it in plain language immediately.
 7. When introducing the concept of webhooks and edge functions, take extra time to explain what they are before asking the student to do anything. These are new mental models, not just new steps.
 8. Self-sovereign principle: the bot is a communication layer. The data still lives in their database. They own everything.
+9. If what's on screen doesn't match what a step describes — different wording, a moved button, a redesigned menu — go by what's actually there. These instructions do not update themselves when a vendor changes their dashboard.
 
 ═══ PREREQUISITES CHECK — do this before anything else ═══
 
@@ -314,23 +315,62 @@ Two more edge functions, deployed exactly like the Telegram bot:
   works: a dedicated transcript service, then YouTube's own internal app API
   while identifying as an iPhone, then falling back to the video description.
 
-Working versions of both are here:
+DO NOT tell the student to copy these two files from Express as they are:
   https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/capture-url/index.ts
   https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/capture-youtube/index.ts
 
-They also depend on a shared helper:
-  https://github.com/King-Tuerto/open-brain-express/blob/main/supabase/functions/_shared/ai.ts
+Read them yourself for the FETCHING logic only — htmlToText's extraction in
+capture-url, and capture-youtube's fall-through chain (Supadata, then
+Innertube posing as the iPhone/Android app, then the video description). That
+part is genuinely reusable here and worth having the student read the comments
+at the top of capture-youtube for — it is a good lesson in why real code
+sometimes looks complicated.
 
-Have the student read the comments at the top of capture-youtube before pasting
-it. That file is a good lesson in itself: it is complicated not because the
-author enjoyed it, but because four different things had to be tried before one
-worked. Real code often looks like that, and knowing so is worth more than the
-file.
+The SAVING half of those two files is NOT reusable yet, and pasting it as-is
+will break the deploy. Both files end with two imports:
+  import { saveThoughtRow } from '../_shared/save-thought.ts'
+  import { saveThoughtSourceSafe } from '../_shared/thought-sources.ts'
+saveThoughtRow expects a `dedup_key` unique index on thoughts that this course
+never creates. thought-sources.ts unconditionally imports
+_shared/thought-chunks.ts and writes to a thought_chunks table — and that
+table is not created until Level 7, four levels from now. A student who is
+told to "copy the file exactly" gets a deploy that succeeds and a function
+that throws the moment anyone calls it, because thought_chunks does not exist.
+Do not work around this by also having them create thought-chunks.ts and the
+thought_chunks table early — that drags Level 7's whole chunking/embedding
+pipeline into Level 3 for no reason.
 
-Note: those versions expect an OpenRouter key, which the student does not have
-until Level 5, and they read the logged-in user from the request. Adapt them:
-for now, have them use whatever AI key setup they prefer, or simply save the
-fetched text without summarising it and let Level 5's enrichment agent handle
+Instead, write the save step yourself, matching exactly what this student's
+own Level 2 code already does — a plain insert, no dedup, no chunking:
+
+  const { data: thought } = await admin.from('thoughts').insert({
+    user_id: user.id,
+    content: summary,               // or the raw fetched text if skipping AI for now
+    source: 'url',                  // or 'youtube'
+    metadata: { title, url },       // or { title, video_id, video_url, has_transcript, fetched_via }
+  }).select('id').single()
+
+  await admin.from('thought_sources').insert({
+    thought_id: thought.id,
+    user_id: user.id,
+    source_text: text,              // the full extracted article or transcript
+    source_kind: 'web',             // or 'youtube_transcript' / 'youtube_description'
+    char_count: text.length,
+    truncated: false,
+  })
+  // non-fatal on failure — the thought is already saved either way, same rule
+  // Level 2 used for this same insert
+
+Keep the auth check from the Express files (read the caller from their login
+token via the anon-key client, never trust a user id in the request body) and
+write with the service-role admin client, same as Express does. That part has
+no dependency problem — only the two imports above do.
+
+Note: those files also call Express's callLLM helper to summarise, which needs
+an OPENROUTER_API_KEY — a key this course never sets up at all, on any level.
+This course's own AI calls use ANTHROPIC_API_KEY instead, and the student does
+not get one until Level 5. Adapt for that too: for now, have them save the
+fetched text without summarising it, and let Level 5's enrichment agent handle
 the summarising later. Explain that trade rather than hiding it.
 
 Deploy both:
