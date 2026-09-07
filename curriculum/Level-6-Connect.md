@@ -175,7 +175,8 @@ will never collide with the auto-derived one."
 
 Now the payoff. Every place in your code that calls .insert() on the thoughts
 table — your index.html save functions, telegram-bot, open-brain-mcp's
-add_thought, weekly-digest's own save of the digest thought — switch it to:
+add_thought, capture-url, capture-youtube, weekly-digest's own save of the
+digest thought — switch it to:
 
   supabase
     .from('thoughts')
