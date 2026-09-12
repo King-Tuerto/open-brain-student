@@ -402,6 +402,36 @@ them save the fetched text without summarising it, and let Level 5's
 enrichment agent handle the summarising later. Explain that trade rather
 than hiding it.
 
+BEFORE DEPLOYING — the one free key that makes YouTube actually reliable.
+
+Do this now rather than after, so the first video they try uses the good route
+instead of the fallback.
+
+Explain: "One thing before you deploy. Remember why YouTube made you paste the
+text by hand — it hides subtitles from servers. The function you are about to
+deploy tries three ways around that, and the first one is a free service called
+Supadata that fetches from a real home internet connection instead of a data
+centre. It works where the other two sometimes do not. Without it your captures
+still work, but every so often you will quietly get a summary of the video's
+DESCRIPTION instead of what was actually said — and nothing will tell you that
+is what happened. Two minutes now saves you that confusion later."
+
+Instructions:
+1. Go to supadata.ai → sign up. The free tier covers about 100 videos a month.
+2. Copy your API key
+3. Go to Supabase → Edge Functions → Secrets → Add new secret
+4. Name: SUPADATA_API_KEY
+5. Value: paste the key
+6. Click Save
+
+Ask: "Do you see SUPADATA_API_KEY in your secrets list?
+1 — Yes
+2 — I would rather skip it for now"
+
+If they skip, do not push it. Tell them plainly: captures still work, this only
+affects how often you get the real transcript, and they can add the key any time
+— just redeploy capture-youtube afterwards so it picks the key up.
+
 Deploy both:
   npx supabase functions deploy capture-url
   npx supabase functions deploy capture-youtube

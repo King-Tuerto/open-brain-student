@@ -58,7 +58,8 @@ you through everything. When Level-0 is done, open Level-1. Do them in order —
 each level requires the previous one to be working, or the next one breaks.
 
 You will need free accounts at github.com, supabase.com and vercel.com. Level-0
-helps you set those up.
+helps you set those up. Two more come later and take two minutes each: a free
+Telegram account and a free supadata.ai key, both at Level 3.
 
 This process works for most people, but computers differ and edge cases happen.
 If something does not go as described, do not stop — tell Claude what is
@@ -141,7 +142,9 @@ Hazlos en orden — cada nivel requiere que el anterior esté funcionando o el
 siguiente se rompe.
 
 Necesitarás cuentas gratuitas en github.com, supabase.com y vercel.com. El
-Nivel-0 te ayuda a configurarlas.
+Nivel-0 te ayuda a configurarlas. Después vienen dos más, de dos minutos cada
+una: una cuenta gratuita de Telegram y una clave gratuita de supadata.ai, ambas
+en el Nivel 3.
 
 Este proceso funciona para la mayoría, pero las computadoras son distintas y hay
 casos especiales. Si algo no sale como se describe, no te detengas — dile a
